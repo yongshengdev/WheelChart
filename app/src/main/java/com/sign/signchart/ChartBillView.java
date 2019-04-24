@@ -9,7 +9,11 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.os.Build;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.widget.OverScroller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +28,8 @@ public class ChartBillView extends View {
     private final static float BEZIER_RADIAN = 0.16f;//贝塞尔连接线弧度 值越小越尖锐
     private final static float BLACK_X_LABEL_LINE = 20;//px轴线两端的空白
     private final static float BLACK_VALUE_TEXT = 12;//px坐标点和文字之间的间距
+    private final static int INVALID_ID = -1;//非法触控id
+    private int mActivePointerId = INVALID_ID;//记录首个触控点的id 避免多点触控引起的滚动
     private ChartBillLayout mParent;
     private Context mContext;
     //提前刻画量
@@ -53,6 +59,12 @@ public class ChartBillView extends View {
     private int mHalfWidth = 0;
     //图标的总长度、最小可滑动值、最大可滑动值
     private int mLength, mMinPosition = 0, mMaxPosition = 0;
+    //速度获取
+    protected VelocityTracker mVelocityTracker;
+    //惯性最大最小速度
+    protected int mMaximumVelocity, mMinimumVelocity;
+    //控制滑动
+    protected OverScroller mOverScroller;
 
 
     public ChartBillView(Context context, ChartBillLayout chartBillLayout) {
@@ -67,6 +79,12 @@ public class ChartBillView extends View {
         mPointPath = new Path();
         mPointList = new ArrayList<>();
         mDrawOffset = Utils.dp2px(context, mParent.getXLabelInterval());
+        mOverScroller = new OverScroller(mContext);
+        mVelocityTracker = VelocityTracker.obtain();
+        mMaximumVelocity = ViewConfiguration.get(context)
+                .getScaledMaximumFlingVelocity();
+        mMinimumVelocity = ViewConfiguration.get(context)
+                .getScaledMinimumFlingVelocity();
         initPaint();
         checkAPILevel();
     }
@@ -75,20 +93,87 @@ public class ChartBillView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float currentX = event.getX();
+        //开始速度检测
+        if (mVelocityTracker == null) {
+            mVelocityTracker = VelocityTracker.obtain();
+        }
+        mVelocityTracker.addMovement(event);
+        ViewGroup parent = (ViewGroup) getParent();//为了解决刻度尺在scrollview这种布局里面滑动冲突问题
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                //记录首个触控点的id
+                mActivePointerId = event.findPointerIndex(event.getActionIndex());
+                if (!mOverScroller.isFinished()) {
+                    mOverScroller.abortAnimation();
+                }
                 mLastX = currentX;
+                parent.requestDisallowInterceptTouchEvent(true);//按下时开始让父控件不要处理任何touch事件
                 break;
             case MotionEvent.ACTION_MOVE:
-                float moveX = mLastX - currentX;
+                if (mActivePointerId == INVALID_ID || event.findPointerIndex(mActivePointerId) == INVALID_ID) {
+                    break;
+                }
+                //计算首个触控点移动后的坐标
+                float moveX = mLastX - event.getX(mActivePointerId);
                 mLastX = currentX;
                 scrollBy((int) moveX, 0);
                 break;
             case MotionEvent.ACTION_UP:
+                mActivePointerId = INVALID_ID;
+                mLastX = 0;
+                //处理松手后的Fling
+                mVelocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
+                int velocityX = (int) mVelocityTracker.getXVelocity();
+                if (Math.abs(velocityX) > mMinimumVelocity) {
+                    fling(-velocityX);
+                } else {
+                    //scrollBackToCurrentScale();
+                }
+                //VelocityTracker回收
+                if (mVelocityTracker != null) {
+                    mVelocityTracker.recycle();
+                    mVelocityTracker = null;
+                }
+                parent.requestDisallowInterceptTouchEvent(false);//up或者cancel的时候恢复
                 break;
-
+            case MotionEvent.ACTION_CANCEL:
+                mActivePointerId = INVALID_ID;
+                mLastX = 0;
+                if (!mOverScroller.isFinished()) {
+                    mOverScroller.abortAnimation();
+                }
+                //回滚到整点刻度
+                //scrollBackToCurrentScale();
+                //VelocityTracker回收
+                if (mVelocityTracker != null) {
+                    mVelocityTracker.recycle();
+                    mVelocityTracker = null;
+                }
+                parent.requestDisallowInterceptTouchEvent(false);//up或者cancel的时候恢复
+                break;
         }
         return true;
+    }
+
+    private void fling(int vX) {
+        mOverScroller.fling(getScrollX(), 0, vX, 0, mMinPosition, mMaxPosition, 0, 0);
+        invalidate();
+    }
+
+    @Override
+    public void computeScroll() {
+        if (mOverScroller.computeScrollOffset()) {
+            scrollTo(mOverScroller.getCurrX(), mOverScroller.getCurrY());
+            //这是最后OverScroller的最后一次滑动，如果这次滑动完了mCurrentScale不是整数，则把尺子移动到最近的整数位置
+            if (!mOverScroller.computeScrollOffset()) {
+//                int currentIntScale = Math.round(mCurrentScale);
+//                if ((Math.abs(mCurrentScale - currentIntScale) > 0.001f)) {
+//                    //Fling完进行一次检测回滚
+//                    scrollBackToCurrentScale(currentIntScale);
+//                }
+            }
+            postInvalidate();
+        }
     }
 
     @Override
