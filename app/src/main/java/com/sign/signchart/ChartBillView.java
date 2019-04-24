@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.os.Build;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -25,10 +26,8 @@ public class ChartBillView extends View {
     private final static float BLACK_VALUE_TEXT = 12;//px坐标点和文字之间的间距
     private ChartBillLayout mParent;
     private Context mContext;
-
     //提前刻画量
     private float mDrawOffset;
-
     private Paint mXLabelLinePaint, mXLabelTextNormalPaint, mXLabelTextSelectPaint, mXValuePointColorPaint, mXValuePointWhitePaint, mNormalValueTextPaint, mSelectValueTextPaint, mLinkLinePaint;
     //x轴轴线的路径
     private Path mXLabelLinePath;
@@ -39,8 +38,6 @@ public class ChartBillView extends View {
     //x轴label正常文字的高度
     private float mXLabelTextNormalHeight;
     //value选中文字的高度
-    private float mValueNormalHeight;
-    //value选中文字的高度
     private float mValueSelectHeight;
     //选中坐标文字属性
     private Paint.FontMetrics mSelectValueMetrics;
@@ -50,6 +47,12 @@ public class ChartBillView extends View {
     private List<PointF> mPointList;
     //选中值的路径
     private Path mPointPath;
+    //上个touch事件的x坐标
+    private float mLastX = 0;
+    //一半宽度
+    private int mHalfWidth = 0;
+    //图标的总长度、最小可滑动值、最大可滑动值
+    private int mLength, mMinPosition = 0, mMaxPosition = 0;
 
 
     public ChartBillView(Context context, ChartBillLayout chartBillLayout) {
@@ -68,6 +71,56 @@ public class ChartBillView extends View {
         checkAPILevel();
     }
 
+    //处理滑动 计算现在的event坐标和上一个触摸事件的坐标来计算偏移量 决定scrollBy的多少
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        float currentX = event.getX();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mLastX = currentX;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float moveX = mLastX - currentX;
+                mLastX = currentX;
+                scrollBy((int) moveX, 0);
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+
+        }
+        return true;
+    }
+
+    @Override
+    public void scrollTo(int x, int y) {
+        //默认左边缘为x最小值-半个控件的宽度
+        if (x < mMinPosition) {
+            x = mMinPosition;
+        }
+        //默认右边缘为x最大值+半个控件的宽度
+        if (x > mMaxPosition) {
+            x = mMaxPosition;
+        }
+        if (x != getScrollX()) {
+            super.scrollTo(x, y);
+        }
+    }
+
+    public void refreshSize() {
+        mLength = (int) ((mParent.getData().size() - 1) * mParent.getXLabelInterval());
+        mHalfWidth = getWidth() / 2;
+        //左右空白间距为控件宽度一半
+        mMinPosition = -mHalfWidth;
+        mMaxPosition = mLength - mHalfWidth;
+    }
+
+    //获取控件宽高，设置相应信息
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        refreshSize();
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -84,6 +137,7 @@ public class ChartBillView extends View {
                     //上方及下方空白间距+label文字高度+label文字和轴线的间距+选中值文字高度+坐标点和文字间距(*2 多了一份是坐标点的半径)
                     float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
+                    //TODO onDraw方法中不能循环创建对象
                     mPointList.add(new PointF(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT)));
                 } else {
                     float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
@@ -203,7 +257,6 @@ public class ChartBillView extends View {
                     previousPointY = currentPointY;
                 }
             }
-
             if (Float.isNaN(prePreviousPointX)) {
                 //是否是前两个点
                 if (valueIndex > 1) {
@@ -216,7 +269,6 @@ public class ChartBillView extends View {
                     prePreviousPointY = previousPointY;
                 }
             }
-
             // 判断是不是最后一个点了
             if (valueIndex < lineSize - 1) {
                 PointF point = mPointList.get(valueIndex + 1);
@@ -227,7 +279,6 @@ public class ChartBillView extends View {
                 nextPointX = currentPointX;
                 nextPointY = currentPointY;
             }
-
             if (valueIndex == 0) {
                 // 将Path移动到开始点
                 mPointPath.moveTo(currentPointX, currentPointY);
@@ -245,7 +296,6 @@ public class ChartBillView extends View {
                 mPointPath.cubicTo(firstControlPointX, firstControlPointY, secondControlPointX, secondControlPointY,
                         currentPointX, currentPointY);
             }
-
             // 更新值,
             prePreviousPointX = previousPointX;
             prePreviousPointY = previousPointY;
@@ -299,7 +349,6 @@ public class ChartBillView extends View {
         mNormalValueTextPaint.setColor(mParent.getNormalValueTextColor());
         mNormalValueTextPaint.setTextAlign(Paint.Align.CENTER);
         mNormalValueMetrics = mNormalValueTextPaint.getFontMetrics();
-        mValueNormalHeight = mNormalValueMetrics.bottom - mNormalValueMetrics.top;
         //选中坐标值
         mSelectValueTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mSelectValueTextPaint.setTextSize(mParent.getSelectValueTextSize());
@@ -319,5 +368,10 @@ public class ChartBillView extends View {
         if (Build.VERSION.SDK_INT < 18) {
             setLayerType(LAYER_TYPE_NONE, null);
         }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

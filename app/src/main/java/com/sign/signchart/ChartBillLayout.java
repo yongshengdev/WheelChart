@@ -171,7 +171,7 @@ public class ChartBillLayout extends ViewGroup {
     public void setData(List<Entry> data) {
         mData = data;
         mChartBillView.init(mContext);
-//        .refreshSize();
+        mChartBillView.refreshSize();
     }
 
     public List<Entry> getData() {
