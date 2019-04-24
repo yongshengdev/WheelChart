@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ChartBillLayout">
+        <attr name="xLabelGravity" format="enum">
+            <enum name="top" value="1"/>
+            <enum name="bottom" value="2"/>
+        </attr>
+        <attr name="xLabelInterval" format="dimension"/>
+        <attr name="xLabelTextNormalSize" format="dimension"/>
+        <attr name="xLabelTextNormalColor" format="color"/>
+        <attr name="xLabelTextSelectSize" format="dimension"/>
+        <attr name="xLabelTextSelectColor" format="color"/>
+        <attr name="xLabelTextLineInterval" format="dimension"/>
+        <attr name="xLabelLineWidth" format="dimension"/>
+        <attr name="xLabelLineColor" format="color"/>
+        <attr name="xLabelLineLength" format="dimension"/>
+        <attr name="xLabelLineDashLength" format="dimension"/>
+        <attr name="linkLineWidth" format="dimension"/>
+        <attr name="linkLineColor" format="dimension"/>
+        <attr name="linkLineType" format="enum">
+            <enum name="straight" value="1"/>
+            <enum name="bezier" value="2"/>
+        </attr>
+        <attr name="normalValueDrawable" format="reference"/>
+        <attr name="normalValueTextSize" format="dimension"/>
+        <attr name="normalValueTextColor" format="color"/>
+        <attr name="selectValueDrawable" format="reference"/>
+        <attr name="selectValueTextSize" format="dimension"/>
+        <attr name="selectValueTextColor" format="color"/>
+        <attr name="paddingLeftAndRight" format="dimension"/>
+        <attr name="paddingTopAndBottom" format="dimension"/>
+
+    </declare-styleable>
+</resources>
