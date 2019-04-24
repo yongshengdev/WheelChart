@@ -88,6 +88,9 @@ public class ChartBillLayout extends ViewGroup {
     //坐标值选中时的字体颜色
     @ColorInt
     private int mSelectValueTextColor = getResources().getColor(R.color.colorBlack);
+    //坐标点的颜色
+    @ColorInt
+    private int mValuePointColor = getResources().getColor(R.color.blue);
     //Y轴的最大值
     private double mYMaxValue = 0;
     //Y轴的最小值
@@ -144,6 +147,7 @@ public class ChartBillLayout extends ViewGroup {
         }
         mSelectValueTextSize = typedArray.getDimension(R.styleable.ChartBillLayout_selectValueTextSize, Utils.sp2px(context, mSelectValueTextSize));
         mSelectValueTextColor = typedArray.getColor(R.styleable.ChartBillLayout_selectValueTextColor, mSelectValueTextColor);
+        mValuePointColor = typedArray.getColor(R.styleable.ChartBillLayout_valuePointColor, mValuePointColor);
         mPaddingLeftAndRight = typedArray.getDimension(R.styleable.ChartBillLayout_paddingLeftAndRight, Utils.dp2px(context, mPaddingLeftAndRight));
         mPaddingTopAndBottom = typedArray.getDimension(R.styleable.ChartBillLayout_paddingTopAndBottom, Utils.dp2px(context, mPaddingTopAndBottom));
         typedArray.recycle();
@@ -360,4 +364,11 @@ public class ChartBillLayout extends ViewGroup {
         this.mYMinValue = mYMinValue;
     }
 
+    public int getValuePointColor() {
+        return mValuePointColor;
+    }
+
+    public void setValuePointColor(int mValuePointColor) {
+        this.mValuePointColor = mValuePointColor;
+    }
 }

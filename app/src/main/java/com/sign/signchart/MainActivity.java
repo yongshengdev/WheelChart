@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
         ChartBillLayout chartBillLayout = findViewById(R.id.cbl_bill);
         List<Entry> list = new ArrayList<>();
         list.add(new Entry("Jan", 200));
-        list.add(new Entry("Feb", 400));
+        list.add(new Entry("Feb", 200));
         list.add(new Entry("Mar", 5000));
         list.add(new Entry("Apr", 5000));
         list.add(new Entry("May", 300));

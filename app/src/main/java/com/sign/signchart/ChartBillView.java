@@ -20,6 +20,9 @@ import java.util.List;
  * @author admin
  */
 public class ChartBillView extends View {
+    private final static float BEZIER_RADIAN = 0.16f;//贝塞尔连接线弧度 值越小越尖锐
+    private final static float BLACK_X_LABEL_LINE = 20;//px轴线两端的空白
+    private final static float BLACK_VALUE_TEXT = 12;//px坐标点和文字之间的间距
     private ChartBillLayout mParent;
     private Context mContext;
 
@@ -78,15 +81,14 @@ public class ChartBillView extends View {
             if (i >= 0 && i < mParent.getData().size()) {
                 float locationX = i * mParent.getXLabelInterval();
                 if (mParent.getXLabelGravity() == ChartBillLayout.X_TOP) {
-                    //30px的上方及下方空白间距+label文字高度+label文字和轴线的间距+选中值文字高度+12px的坐标点和文字间距
-                    float distance = (float) ((height - 30 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - 12) /
+                    //上方及下方空白间距+label文字高度+label文字和轴线的间距+选中值文字高度+坐标点和文字间距(*2 多了一份是坐标点的半径)
+                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
-                    mPointList.add(new PointF(locationX, (height - distance - 15)));
+                    mPointList.add(new PointF(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT)));
                 } else {
-                    //20px的上方及下方空白间距+label文字高度+label文字和轴线的间距+选中值文字高度+12px的坐标点和文字间距
-                    float distance = (float) ((height - 30 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - 12) /
+                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
-                    mPointList.add(new PointF(locationX, (height - distance - 15 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval())));
+                    mPointList.add(new PointF(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval())));
                 }
             }
         }
@@ -110,24 +112,23 @@ public class ChartBillView extends View {
                     mXLabelLinePath.moveTo(locationX, mXLabelTextNormalHeight + mParent.getXLabelTextLineInterval());
                     mXLabelLinePath.lineTo(locationX, height);
                     canvas.drawPath(mXLabelLinePath, mXLabelLinePaint);
-                    //30px的上方及下方空白间距+label文字高度+label文字和轴线的间距+选中值文字高度+12px的坐标点和文字间距
-                    float distance = (float) ((height - 30 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - 12) /
+                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
                     //是否是中心值
                     if (centerIndex == i) {
                         mXValuePointColorPaint.setStrokeWidth(8);
-                        canvas.drawCircle(locationX, (height - distance - 15), 4, mXValuePointColorPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 4, mXValuePointColorPaint);
                         mXValuePointWhitePaint.setStrokeWidth(4);
-                        canvas.drawCircle(locationX, (height - distance - 15), 8, mXValuePointWhitePaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 8, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
-                        canvas.drawCircle(locationX, (height - distance - 15), 12, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - 15 - mSelectValueMetrics.bottom - 12), mSelectValueTextPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 12, mXValuePointColorPaint);
+                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mSelectValueMetrics.bottom - BLACK_VALUE_TEXT * 2), mSelectValueTextPaint);
                     } else {
                         mXValuePointWhitePaint.setStrokeWidth(8);
-                        canvas.drawCircle(locationX, (height - distance - 15), 4, mXValuePointWhitePaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 4, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
-                        canvas.drawCircle(locationX, (height - distance - 15), 8, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - 15 - mNormalValueMetrics.bottom - 12), mNormalValueTextPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 8, mXValuePointColorPaint);
+                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mNormalValueMetrics.bottom - BLACK_VALUE_TEXT * 2), mNormalValueTextPaint);
                     }
                 } else {
                     int centerIndex = (int) (getScrollX() / mParent.getXLabelInterval() + Utils.getScreenWidth(mContext) / mParent.getXLabelInterval() / 2);
@@ -145,30 +146,30 @@ public class ChartBillView extends View {
                     mXLabelLinePath.moveTo(locationX, 0);
                     mXLabelLinePath.lineTo(locationX, getHeight() - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval());
                     canvas.drawPath(mXLabelLinePath, mXLabelLinePaint);
-                    //30px的上方及下方空白间距+label文字高度+label文字和轴线的间距+选中值文字高度+12px的坐标点和文字间距
-                    float distance = (float) ((height - 30 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - 12) /
+                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
                     //是否是中心值
                     if (centerIndex == i) {
                         mXValuePointColorPaint.setStrokeWidth(8);
-                        canvas.drawCircle(locationX, (height - distance - 15 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval()), 4, mXValuePointColorPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 4, mXValuePointColorPaint);
                         mXValuePointWhitePaint.setStrokeWidth(4);
-                        canvas.drawCircle(locationX, (height - distance - 15 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval()), 8, mXValuePointWhitePaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 8, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
-                        canvas.drawCircle(locationX, (height - distance - 15 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval()), 12, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - 15 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mSelectValueMetrics.bottom - 12), mSelectValueTextPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 12, mXValuePointColorPaint);
+                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mSelectValueMetrics.bottom - BLACK_VALUE_TEXT * 2), mSelectValueTextPaint);
                     } else {
                         mXValuePointWhitePaint.setStrokeWidth(8);
-                        canvas.drawCircle(locationX, (height - distance - 15 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval()), 4, mXValuePointWhitePaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 4, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
-                        canvas.drawCircle(locationX, (height - distance - 15 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval()), 8, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - 15 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mNormalValueMetrics.bottom - 12), mNormalValueTextPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 8, mXValuePointColorPaint);
+                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mNormalValueMetrics.bottom - BLACK_VALUE_TEXT * 2), mNormalValueTextPaint);
                     }
                 }
             }
         }
     }
 
+    //对需要绘制的坐标点用贝塞尔曲线连接 代码来自：https://www.jianshu.com/p/98088ff77607
     private void drawValuePath(Canvas canvas) {
         if (mPointList.size() <= 0) {
             return;
@@ -236,10 +237,10 @@ public class ChartBillView extends View {
                 float firstDiffY = (currentPointY - prePreviousPointY);
                 float secondDiffX = (nextPointX - previousPointX);
                 float secondDiffY = (nextPointY - previousPointY);
-                float firstControlPointX = previousPointX + (0.16f * firstDiffX);
-                float firstControlPointY = previousPointY + (0.16f * firstDiffY);
-                float secondControlPointX = currentPointX - (0.16f * secondDiffX);
-                float secondControlPointY = currentPointY - (0.16f * secondDiffY);
+                float firstControlPointX = previousPointX + (BEZIER_RADIAN * firstDiffX);
+                float firstControlPointY = previousPointY + (BEZIER_RADIAN * firstDiffY);
+                float secondControlPointX = currentPointX - (BEZIER_RADIAN * secondDiffX);
+                float secondControlPointY = currentPointY - (BEZIER_RADIAN * secondDiffY);
                 //画出曲线
                 mPointPath.cubicTo(firstControlPointX, firstControlPointY, secondControlPointX, secondControlPointY,
                         currentPointX, currentPointY);
@@ -283,7 +284,7 @@ public class ChartBillView extends View {
         //坐标点的绘制
         mXValuePointColorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mXValuePointColorPaint.setStrokeWidth(3);
-        mXValuePointColorPaint.setColor(getResources().getColor(R.color.blue));
+        mXValuePointColorPaint.setColor(mParent.getValuePointColor());
         mXValuePointColorPaint.setStyle(Paint.Style.STROKE);
         mXValuePointColorPaint.setStrokeCap(Paint.Cap.ROUND);
         //坐标点白色填充的绘制
