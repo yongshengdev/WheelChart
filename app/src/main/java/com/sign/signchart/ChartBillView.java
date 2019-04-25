@@ -29,6 +29,8 @@ public class ChartBillView extends View {
     private final static float BLACK_X_LABEL_LINE = 20;//px轴线两端的空白
     private final static float BLACK_VALUE_TEXT = 12;//px坐标点和文字之间的间距
     private final static int INVALID_ID = -1;//非法触控id
+    //惯性回滚最小偏移值，小于这个值就应该直接滑动到目的点
+    private static final int MIN_SCROLLER_DP = 1;
     private int mActivePointerId = INVALID_ID;//记录首个触控点的id 避免多点触控引起的滚动
     private ChartBillLayout mParent;
     private Context mContext;
@@ -60,12 +62,13 @@ public class ChartBillView extends View {
     //图标的总长度、最小可滑动值、最大可滑动值
     private int mLength, mMinPosition = 0, mMaxPosition = 0;
     //速度获取
-    protected VelocityTracker mVelocityTracker;
+    private VelocityTracker mVelocityTracker;
     //惯性最大最小速度
-    protected int mMaximumVelocity, mMinimumVelocity;
+    private int mMaximumVelocity, mMinimumVelocity;
     //控制滑动
-    protected OverScroller mOverScroller;
-
+    private OverScroller mOverScroller;
+    //当前选中的下标
+    private int mSelectIndex = 0;
 
     public ChartBillView(Context context, ChartBillLayout chartBillLayout) {
         super(context);
@@ -92,7 +95,6 @@ public class ChartBillView extends View {
     //处理滑动 计算现在的event坐标和上一个触摸事件的坐标来计算偏移量 决定scrollBy的多少
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float currentX = event.getX();
         //开始速度检测
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
@@ -106,7 +108,7 @@ public class ChartBillView extends View {
                 if (!mOverScroller.isFinished()) {
                     mOverScroller.abortAnimation();
                 }
-                mLastX = currentX;
+                mLastX = event.getX();
                 parent.requestDisallowInterceptTouchEvent(true);//按下时开始让父控件不要处理任何touch事件
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -115,7 +117,7 @@ public class ChartBillView extends View {
                 }
                 //计算首个触控点移动后的坐标
                 float moveX = mLastX - event.getX(mActivePointerId);
-                mLastX = currentX;
+                mLastX = event.getX(mActivePointerId);
                 scrollBy((int) moveX, 0);
                 break;
             case MotionEvent.ACTION_UP:
@@ -127,7 +129,7 @@ public class ChartBillView extends View {
                 if (Math.abs(velocityX) > mMinimumVelocity) {
                     fling(-velocityX);
                 } else {
-                    //scrollBackToCurrentScale();
+                    scrollBackToExactPosition();
                 }
                 //VelocityTracker回收
                 if (mVelocityTracker != null) {
@@ -143,7 +145,7 @@ public class ChartBillView extends View {
                     mOverScroller.abortAnimation();
                 }
                 //回滚到整点刻度
-                //scrollBackToCurrentScale();
+                scrollBackToExactPosition();
                 //VelocityTracker回收
                 if (mVelocityTracker != null) {
                     mVelocityTracker.recycle();
@@ -155,24 +157,42 @@ public class ChartBillView extends View {
         return true;
     }
 
+    //惯性滚动
     private void fling(int vX) {
         mOverScroller.fling(getScrollX(), 0, vX, 0, mMinPosition, mMaxPosition, 0, 0);
         invalidate();
     }
 
+    /**
+     * 由fling方法发起的invalidate，会最终调用view的computeScroll方法
+     * 而在computeScroll方法中又发起了postInvalidate，最终又会调用view的computeScroll，如此循环绘制形成了惯性滚动
+     */
     @Override
     public void computeScroll() {
         if (mOverScroller.computeScrollOffset()) {
             scrollTo(mOverScroller.getCurrX(), mOverScroller.getCurrY());
             //这是最后OverScroller的最后一次滑动，如果这次滑动完了mCurrentScale不是整数，则把尺子移动到最近的整数位置
             if (!mOverScroller.computeScrollOffset()) {
-//                int currentIntScale = Math.round(mCurrentScale);
-//                if ((Math.abs(mCurrentScale - currentIntScale) > 0.001f)) {
-//                    //Fling完进行一次检测回滚
-//                    scrollBackToCurrentScale(currentIntScale);
-//                }
+                //fling完毕，检测是否需要回滚
+                scrollBackToExactPosition();
             }
             postInvalidate();
+        }
+    }
+
+    //触摸事件或惯性滚动结束后 应滚动到中心位置
+    private void scrollBackToExactPosition() {
+        float rightPosition = mSelectIndex * mParent.getXLabelInterval() - (float) getWidth() / 2;
+        if (Math.abs(getScrollX() - rightPosition) > 0.001f) {
+            int dx = Math.round(rightPosition - getScrollX());
+            if (Math.abs(dx) > MIN_SCROLLER_DP) {
+                //渐变回弹
+                mOverScroller.startScroll(getScrollX(), getScrollY(), dx, 0, 500);
+                invalidate();
+            } else {
+                //立刻回弹
+                scrollBy(dx, 0);
+            }
         }
     }
 
@@ -189,6 +209,17 @@ public class ChartBillView extends View {
         if (x != getScrollX()) {
             super.scrollTo(x, y);
         }
+        mSelectIndex = scrollX2Index(x);
+    }
+
+    private int scrollX2Index(int x) {
+        int index = (int) ((x + getWidth() * 0.5) / mParent.getXLabelInterval());
+        if ((x + getWidth() * 0.5) % mParent.getXLabelInterval() > mParent.getXLabelInterval() * 0.5) {
+            if (index <= mParent.getData().size() - 2) {
+                index++;
+            }
+        }
+        return index;
     }
 
     public void refreshSize() {
@@ -236,11 +267,10 @@ public class ChartBillView extends View {
             if (i >= 0 && i < mParent.getData().size()) {
                 float locationX = i * mParent.getXLabelInterval();
                 if (mParent.getXLabelGravity() == ChartBillLayout.X_TOP) {
-                    int centerIndex = (int) (getScrollX() / mParent.getXLabelInterval() + Utils.getScreenWidth(mContext) / mParent.getXLabelInterval() / 2);
                     //x轴label文字在上面
                     if (mParent.getData().get(i).getMonth().length() > 0) {
                         //是否是中心线
-                        if (centerIndex == i) {
+                        if (mSelectIndex == i) {
                             canvas.drawText(mParent.getData().get(i).getMonth(), locationX, -mXLabelTextSelectMetrics.top, mXLabelTextSelectPaint);
                         } else {
                             canvas.drawText(mParent.getData().get(i).getMonth(), locationX, -mXLabelTextNormalMetrics.top, mXLabelTextNormalPaint);
@@ -254,7 +284,7 @@ public class ChartBillView extends View {
                     float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
                     //是否是中心值
-                    if (centerIndex == i) {
+                    if (mSelectIndex == i) {
                         mXValuePointColorPaint.setStrokeWidth(8);
                         canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 4, mXValuePointColorPaint);
                         mXValuePointWhitePaint.setStrokeWidth(4);
@@ -270,11 +300,10 @@ public class ChartBillView extends View {
                         canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mNormalValueMetrics.bottom - BLACK_VALUE_TEXT * 2), mNormalValueTextPaint);
                     }
                 } else {
-                    int centerIndex = (int) (getScrollX() / mParent.getXLabelInterval() + Utils.getScreenWidth(mContext) / mParent.getXLabelInterval() / 2);
                     //x轴label文字在下面
                     if (mParent.getData().get(i).getMonth().length() > 0) {
                         //是否是中心线
-                        if (centerIndex == i) {
+                        if (mSelectIndex == i) {
                             canvas.drawText(mParent.getData().get(i).getMonth(), locationX, getHeight() - mXLabelTextSelectMetrics.bottom, mXLabelTextSelectPaint);
                         } else {
                             canvas.drawText(mParent.getData().get(i).getMonth(), locationX, getHeight() - mXLabelTextNormalMetrics.bottom, mXLabelTextNormalPaint);
@@ -288,7 +317,7 @@ public class ChartBillView extends View {
                     float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
                     //是否是中心值
-                    if (centerIndex == i) {
+                    if (mSelectIndex == i) {
                         mXValuePointColorPaint.setStrokeWidth(8);
                         canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 4, mXValuePointColorPaint);
                         mXValuePointWhitePaint.setStrokeWidth(4);

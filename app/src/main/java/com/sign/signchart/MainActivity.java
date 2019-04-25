@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         chartBillLayout.setYMinValue(minValue);
         chartBillLayout.setYMaxValue(maxValue);
         chartBillLayout.setXLabelInterval(xLabelInterval);
+        chartBillLayout.setInterceptTouchEvent(false);
         chartBillLayout.setData(list);
     }
 }

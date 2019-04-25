@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 import java.lang.annotation.Retention;
@@ -34,7 +35,8 @@ public class ChartBillLayout extends ViewGroup {
 
     private @ChartBillLayout.XLabelGravity
     int mXLabelGravity = X_TOP;
-
+    //是否允许子view处理滑动、点击等事件
+    private boolean mInterceptTouchEvent = false;
     //x轴标签之间间距 单位px
     private float mXLabelInterval = 50;
     //x轴标签未选中文字大小
@@ -166,6 +168,18 @@ public class ChartBillLayout extends ViewGroup {
         if (changed) {
             mChartBillView.layout((int) mPaddingLeftAndRight, (int) (t + mPaddingTopAndBottom), r - l - (int) mPaddingLeftAndRight, (int) (b - mPaddingTopAndBottom));
         }
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (mInterceptTouchEvent) {
+            return true;
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    public void setInterceptTouchEvent(boolean interceptTouchEvent){
+        this.mInterceptTouchEvent = interceptTouchEvent;
     }
 
     public void setData(List<Entry> data) {
