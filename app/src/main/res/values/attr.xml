@@ -21,10 +21,8 @@
             <enum name="straight" value="1"/>
             <enum name="bezier" value="2"/>
         </attr>
-        <attr name="normalValueDrawable" format="reference"/>
         <attr name="normalValueTextSize" format="dimension"/>
         <attr name="normalValueTextColor" format="color"/>
-        <attr name="selectValueDrawable" format="reference"/>
         <attr name="selectValueTextSize" format="dimension"/>
         <attr name="selectValueTextColor" format="color"/>
         <attr name="valuePointColor" format="color"/>

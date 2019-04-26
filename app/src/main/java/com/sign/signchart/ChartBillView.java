@@ -34,6 +34,8 @@ public class ChartBillView extends View {
     private final static int INVALID_ID = -1;//非法触控id
     //惯性回滚最小偏移值，小于这个值就应该直接滑动到目的点
     private static final int MIN_SCROLLER_DP = 1;
+    private float IGNORE_MOVE_OFFSET = 0.0001f;//可忽略的偏移量
+    private boolean mDownAndUp = false;//若down事件后紧接up事件 则判断为点击事件 跳转到指定坐标
     private int mActivePointerId = INVALID_ID;//记录首个触控点的id 避免多点触控引起的滚动
     private ChartBillLayout mParent;
     private Context mContext;
@@ -115,6 +117,7 @@ public class ChartBillView extends View {
         ViewGroup parent = (ViewGroup) getParent();//为了解决刻度尺在scrollview这种布局里面滑动冲突问题
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                mDownAndUp = true;
                 //记录首个触控点的id
                 mActivePointerId = event.findPointerIndex(event.getActionIndex());
                 if (!mOverScroller.isFinished()) {
@@ -124,6 +127,7 @@ public class ChartBillView extends View {
                 parent.requestDisallowInterceptTouchEvent(true);//按下时开始让父控件不要处理任何touch事件
                 break;
             case MotionEvent.ACTION_MOVE:
+                mDownAndUp = false;
                 if (mActivePointerId == INVALID_ID || event.findPointerIndex(mActivePointerId) == INVALID_ID) {
                     break;
                 }
@@ -133,24 +137,40 @@ public class ChartBillView extends View {
                 scrollBy((int) moveX, 0);
                 break;
             case MotionEvent.ACTION_UP:
+                //判断是单点事件 跳转到指定位置
+                if (mDownAndUp) {
+                    int index = (int) ((event.getX() + getScrollX()) / mParent.getXLabelInterval());
+                    if ((event.getX() + getScrollX()) % mParent.getXLabelInterval() > mParent.getXLabelInterval() * 0.5) {
+                        if (index <= mParent.getData().size() - 2) {
+                            index++;
+                        }
+                    }
+                    if (mSelectIndex != index) {
+                        mSelectIndex = index;
+                        scrollBackToExactPosition();
+                    }
+                    mDownAndUp = false;
+                } else {
+                    //处理松手后的Fling
+                    mVelocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
+                    int velocityX = (int) mVelocityTracker.getXVelocity();
+                    if (Math.abs(velocityX) > mMinimumVelocity) {
+                        fling(-velocityX);
+                    } else {
+                        scrollBackToExactPosition();
+                    }
+                    //VelocityTracker回收
+                    if (mVelocityTracker != null) {
+                        mVelocityTracker.recycle();
+                        mVelocityTracker = null;
+                    }
+                }
                 mActivePointerId = INVALID_ID;
                 mLastX = 0;
-                //处理松手后的Fling
-                mVelocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-                int velocityX = (int) mVelocityTracker.getXVelocity();
-                if (Math.abs(velocityX) > mMinimumVelocity) {
-                    fling(-velocityX);
-                } else {
-                    scrollBackToExactPosition();
-                }
-                //VelocityTracker回收
-                if (mVelocityTracker != null) {
-                    mVelocityTracker.recycle();
-                    mVelocityTracker = null;
-                }
                 parent.requestDisallowInterceptTouchEvent(false);//up或者cancel的时候恢复
                 break;
             case MotionEvent.ACTION_CANCEL:
+                mDownAndUp = false;
                 mActivePointerId = INVALID_ID;
                 mLastX = 0;
                 if (!mOverScroller.isFinished()) {
@@ -164,6 +184,9 @@ public class ChartBillView extends View {
                     mVelocityTracker = null;
                 }
                 parent.requestDisallowInterceptTouchEvent(false);//up或者cancel的时候恢复
+                break;
+            default:
+                mDownAndUp = false;
                 break;
         }
         return true;
@@ -195,7 +218,7 @@ public class ChartBillView extends View {
     //触摸事件或惯性滚动结束后 应滚动到中心位置
     private void scrollBackToExactPosition() {
         float rightPosition = mSelectIndex * mParent.getXLabelInterval() - (float) getWidth() / 2;
-        if (Math.abs(getScrollX() - rightPosition) > 0.001f) {
+        if (Math.abs(getScrollX() - rightPosition) > IGNORE_MOVE_OFFSET) {
             int dx = Math.round(rightPosition - getScrollX());
             if (Math.abs(dx) > MIN_SCROLLER_DP) {
                 //渐变回弹

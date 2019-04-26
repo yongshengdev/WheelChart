@@ -3,7 +3,6 @@ package com.sign.signchart;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
 import android.util.AttributeSet;
@@ -76,15 +75,11 @@ public class ChartBillLayout extends ViewGroup {
 
     private @ChartBillLayout.LinkLineType
     int mLinkLineType = STRAIGHT;
-    //坐标值未选中时的背景
-    private Drawable mNormalValueDrawable;
     //坐标值未选中时的字体大小
     private float mNormalValueTextSize = 12;
     //坐标值未选中时的字体颜色
     @ColorInt
     private int mNormalValueTextColor = getResources().getColor(R.color.colorGray);
-    //坐标值选中时的背景
-    private Drawable mSelectValueDrawable;
     //坐标值选中时的字体大小
     private float mSelectValueTextSize = 14;
     //坐标值选中时的字体颜色
@@ -139,16 +134,8 @@ public class ChartBillLayout extends ViewGroup {
         mLinkLineWidth = typedArray.getDimension(R.styleable.ChartBillLayout_linkLineWidth, Utils.dp2px(context, mLinkLineWidth));
         mLinkLineColor = typedArray.getColor(R.styleable.ChartBillLayout_linkLineColor, mLinkLineColor);
         mLinkLineType = typedArray.getInt(R.styleable.ChartBillLayout_linkLineType, mLinkLineType);
-        mNormalValueDrawable = typedArray.getDrawable(R.styleable.ChartBillLayout_normalValueDrawable);
-        if (mNormalValueDrawable == null) {
-            mNormalValueDrawable = getResources().getDrawable(R.drawable.shape_value_normal);
-        }
         mNormalValueTextSize = typedArray.getDimension(R.styleable.ChartBillLayout_normalValueTextSize, Utils.sp2px(context, mNormalValueTextSize));
         mNormalValueTextColor = typedArray.getColor(R.styleable.ChartBillLayout_normalValueTextColor, mNormalValueTextColor);
-        mSelectValueDrawable = typedArray.getDrawable(R.styleable.ChartBillLayout_selectValueDrawable);
-        if (mSelectValueDrawable == null) {
-            mSelectValueDrawable = getResources().getDrawable(R.drawable.shape_value_select);
-        }
         mSelectValueTextSize = typedArray.getDimension(R.styleable.ChartBillLayout_selectValueTextSize, Utils.sp2px(context, mSelectValueTextSize));
         mSelectValueTextColor = typedArray.getColor(R.styleable.ChartBillLayout_selectValueTextColor, mSelectValueTextColor);
         mValuePointColor = typedArray.getColor(R.styleable.ChartBillLayout_valuePointColor, mValuePointColor);
@@ -316,14 +303,6 @@ public class ChartBillLayout extends ViewGroup {
         this.mLinkLineType = mLinkLineType;
     }
 
-    public Drawable getNormalValueDrawable() {
-        return mNormalValueDrawable;
-    }
-
-    public void setNormalValueDrawable(Drawable mNormalValueDrawable) {
-        this.mNormalValueDrawable = mNormalValueDrawable;
-    }
-
     public float getNormalValueTextSize() {
         return mNormalValueTextSize;
     }
@@ -338,14 +317,6 @@ public class ChartBillLayout extends ViewGroup {
 
     public void setNormalValueTextColor(int mNormalValueTextColor) {
         this.mNormalValueTextColor = mNormalValueTextColor;
-    }
-
-    public Drawable getSelectValueDrawable() {
-        return mSelectValueDrawable;
-    }
-
-    public void setSelectValueDrawable(Drawable mSelectValueDrawable) {
-        this.mSelectValueDrawable = mSelectValueDrawable;
     }
 
     public float getSelectValueTextSize() {
