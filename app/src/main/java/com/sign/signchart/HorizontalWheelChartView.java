@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Created by CaoYongSheng
  * on 2019-04-22
- * 点击事件的判定规则 若down事件后紧接up事件(move距离小于2忽略) 则判断为点击事件 跳转到指定坐标
+ * 点击事件的判定规则 若down事件后紧接up事件(move距离小于IGNORE_MOVE_OFFSET忽略) 则判断为点击事件 跳转到指定坐标
  *
  * @author admin
  */
@@ -34,7 +34,7 @@ public class HorizontalWheelChartView extends View {
     private final static int INVALID_ID = -1;//非法触控id
     //惯性回滚最小偏移值，小于这个值就应该直接滑动到目的点
     private static final int MIN_SCROLLER_DP = 1;
-    private float IGNORE_MOVE_OFFSET = 2;//可忽略的move事件偏移量
+    private float IGNORE_MOVE_OFFSET = 2.5f;//可忽略的move事件偏移量
     private float IGNORE_OFFSET = 0.0001f;//可忽略的偏移量
     private boolean mDownAndUp = false;//down事件后紧接up事件
     private int mActivePointerId = INVALID_ID;//记录首个触控点的id 避免多点触控引起的滚动
