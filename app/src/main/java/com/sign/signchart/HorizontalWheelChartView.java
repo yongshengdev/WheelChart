@@ -22,19 +22,21 @@ import java.util.List;
 /**
  * Created by CaoYongSheng
  * on 2019-04-22
+ * 点击事件的判定规则 若down事件后紧接up事件(move距离小于2忽略) 则判断为点击事件 跳转到指定坐标
  *
  * @author admin
  */
 public class HorizontalWheelChartView extends View {
-    private static final String TAG = "HorizontalWheelChartView";
+    private static final String TAG = "HorizontalWheelChart";
     private final static float BEZIER_RADIAN = 0.16f;//贝塞尔连接线弧度 值越小越尖锐
     private final static float BLACK_X_LABEL_LINE = 20;//px轴线两端的空白
     private final static float BLANK_VALUE_TEXT = 12;//px坐标点和文字之间的间距
     private final static int INVALID_ID = -1;//非法触控id
     //惯性回滚最小偏移值，小于这个值就应该直接滑动到目的点
     private static final int MIN_SCROLLER_DP = 1;
-    private float IGNORE_MOVE_OFFSET = 0.0001f;//可忽略的偏移量
-    private boolean mDownAndUp = false;//TODO 点击事件的判定规则还需优化 若down事件后紧接up事件 则判断为点击事件 跳转到指定坐标
+    private float IGNORE_MOVE_OFFSET = 2;//可忽略的move事件偏移量
+    private float IGNORE_OFFSET = 0.0001f;//可忽略的偏移量
+    private boolean mDownAndUp = false;//down事件后紧接up事件
     private int mActivePointerId = INVALID_ID;//记录首个触控点的id 避免多点触控引起的滚动
     private WheelChartLayout mParent;
     private Context mContext;
@@ -126,14 +128,16 @@ public class HorizontalWheelChartView extends View {
                 parent.requestDisallowInterceptTouchEvent(true);//按下时开始让父控件不要处理任何touch事件
                 break;
             case MotionEvent.ACTION_MOVE:
-                mDownAndUp = false;
                 if (mActivePointerId == INVALID_ID || event.findPointerIndex(mActivePointerId) == INVALID_ID) {
                     break;
                 }
                 //计算首个触控点移动后的坐标
                 float moveX = mLastX - event.getX(mActivePointerId);
-                mLastX = event.getX(mActivePointerId);
-                scrollBy((int) moveX, 0);
+                if (Math.abs(moveX) > IGNORE_MOVE_OFFSET) {
+                    mDownAndUp = false;
+                    mLastX = event.getX(mActivePointerId);
+                    scrollBy((int) moveX, 0);
+                }
                 break;
             case MotionEvent.ACTION_UP:
                 //判断是单点事件 跳转到指定位置
@@ -217,7 +221,7 @@ public class HorizontalWheelChartView extends View {
     //触摸事件或惯性滚动结束后 应滚动到中心位置
     private void scrollBackToExactPosition() {
         float rightPosition = mSelectIndex * mParent.getXLabelInterval() - (float) getWidth() / 2;
-        if (Math.abs(getScrollX() - rightPosition) > IGNORE_MOVE_OFFSET) {
+        if (Math.abs(getScrollX() - rightPosition) > IGNORE_OFFSET) {
             int dx = Math.round(rightPosition - getScrollX());
             if (Math.abs(dx) > MIN_SCROLLER_DP) {
                 //渐变回弹
