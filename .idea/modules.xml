@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/HorizontalWheelChart.iml" filepath="$PROJECT_DIR$/HorizontalWheelChart.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WheelChart.iml" filepath="$PROJECT_DIR$/WheelChart.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
