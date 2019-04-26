@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.sign.signchart.ChartBillLayout
+    <com.sign.signchart.WheelChartLayout
         android:id="@+id/cbl_bill"
         android:layout_width="0dp"
         android:layout_height="150dp"

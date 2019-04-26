@@ -7,27 +7,27 @@ package com.sign.signchart;
  * @author admin
  */
 public class Entry {
-    private String month;
-    private double money;
+    private String xLabel;
+    private double yValue;
 
-    public Entry(String month, double money) {
-        this.month = month;
-        this.money = money;
+    public Entry(String xLabel, double yValue) {
+        this.xLabel = xLabel;
+        this.yValue = yValue;
     }
 
-    public String getMonth() {
-        return month;
+    public String getXLabel() {
+        return xLabel;
     }
 
-    public void setMonth(String month) {
-        this.month = month;
+    public void setXLabel(String xLabel) {
+        this.xLabel = xLabel;
     }
 
-    public double getMoney() {
-        return money;
+    public double getYValue() {
+        return yValue;
     }
 
-    public void setMoney(double money) {
-        this.money = money;
+    public void setYValue(double yValue) {
+        this.yValue = yValue;
     }
 }

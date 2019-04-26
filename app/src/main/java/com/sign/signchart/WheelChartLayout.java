@@ -20,9 +20,9 @@ import java.util.List;
  *
  * @author admin
  */
-public class ChartBillLayout extends ViewGroup {
+public class WheelChartLayout extends ViewGroup {
     private Context mContext;
-    private ChartBillView mChartBillView;
+    private HorizontalWheelChartView mWheelChartView;
 
     //x轴标签位置定义
     public static final int X_TOP = 1, X_BOTTOM = 2;
@@ -32,7 +32,7 @@ public class ChartBillLayout extends ViewGroup {
     private @interface XLabelGravity {
     }
 
-    private @ChartBillLayout.XLabelGravity
+    private @WheelChartLayout.XLabelGravity
     int mXLabelGravity = X_TOP;
     //是否允许子view处理滑动、点击等事件
     private boolean mInterceptTouchEvent = false;
@@ -73,7 +73,7 @@ public class ChartBillLayout extends ViewGroup {
     private @interface LinkLineType {
     }
 
-    private @ChartBillLayout.LinkLineType
+    private @WheelChartLayout.LinkLineType
     int mLinkLineType = STRAIGHT;
     //坐标值未选中时的字体大小
     private float mNormalValueTextSize = 12;
@@ -101,61 +101,61 @@ public class ChartBillLayout extends ViewGroup {
     //数据源
     private List<Entry> mData = new ArrayList<>();
 
-    public ChartBillLayout(Context context) {
+    public WheelChartLayout(Context context) {
         super(context);
         initChartView(context);
     }
 
-    public ChartBillLayout(Context context, AttributeSet attrs) {
+    public WheelChartLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         initChartView(context);
         initAttrs(context, attrs);
     }
 
-    public ChartBillLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public WheelChartLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initChartView(context);
         initAttrs(context, attrs);
     }
 
     private void initAttrs(Context context, AttributeSet attrs) {
-        TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ChartBillLayout, 0, 0);
-        mXLabelGravity = typedArray.getInt(R.styleable.ChartBillLayout_xLabelGravity, mXLabelGravity);
-        mXLabelInterval = typedArray.getDimension(R.styleable.ChartBillLayout_xLabelInterval, mXLabelInterval);
-        mXLabelTextNormalSize = typedArray.getDimension(R.styleable.ChartBillLayout_xLabelTextNormalSize, Utils.sp2px(context, mXLabelTextNormalSize));
-        mXLabelTextNormalColor = typedArray.getColor(R.styleable.ChartBillLayout_xLabelTextNormalColor, mXLabelTextNormalColor);
-        mXLabelTextSelectSize = typedArray.getDimension(R.styleable.ChartBillLayout_xLabelTextNormalSize, Utils.sp2px(context, mXLabelTextSelectSize));
-        mXLabelTextSelectColor = typedArray.getColor(R.styleable.ChartBillLayout_xLabelTextSelectColor, mXLabelTextSelectColor);
-        mXLabelTextLineInterval = typedArray.getDimension(R.styleable.ChartBillLayout_xLabelTextLineInterval, Utils.dp2px(context, mXLabelTextLineInterval));
-        mXLabelLineWidth = typedArray.getDimension(R.styleable.ChartBillLayout_xLabelLineWidth, Utils.dp2px(context, mXLabelLineWidth));
-        mXLabelLineColor = typedArray.getColor(R.styleable.ChartBillLayout_xLabelLineColor, mXLabelLineColor);
-        mXLabelLineLength = typedArray.getDimension(R.styleable.ChartBillLayout_xLabelLineLength, mXLabelLineLength);
-        mXLabelLineDashLength = typedArray.getDimension(R.styleable.ChartBillLayout_xLabelLineDashLength, mXLabelLineDashLength);
-        mLinkLineWidth = typedArray.getDimension(R.styleable.ChartBillLayout_linkLineWidth, Utils.dp2px(context, mLinkLineWidth));
-        mLinkLineColor = typedArray.getColor(R.styleable.ChartBillLayout_linkLineColor, mLinkLineColor);
-        mLinkLineType = typedArray.getInt(R.styleable.ChartBillLayout_linkLineType, mLinkLineType);
-        mNormalValueTextSize = typedArray.getDimension(R.styleable.ChartBillLayout_normalValueTextSize, Utils.sp2px(context, mNormalValueTextSize));
-        mNormalValueTextColor = typedArray.getColor(R.styleable.ChartBillLayout_normalValueTextColor, mNormalValueTextColor);
-        mSelectValueTextSize = typedArray.getDimension(R.styleable.ChartBillLayout_selectValueTextSize, Utils.sp2px(context, mSelectValueTextSize));
-        mSelectValueTextColor = typedArray.getColor(R.styleable.ChartBillLayout_selectValueTextColor, mSelectValueTextColor);
-        mValuePointColor = typedArray.getColor(R.styleable.ChartBillLayout_valuePointColor, mValuePointColor);
-        mPaddingLeftAndRight = typedArray.getDimension(R.styleable.ChartBillLayout_paddingLeftAndRight, Utils.dp2px(context, mPaddingLeftAndRight));
-        mPaddingTopAndBottom = typedArray.getDimension(R.styleable.ChartBillLayout_paddingTopAndBottom, Utils.dp2px(context, mPaddingTopAndBottom));
+        TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.WheelChartLayout, 0, 0);
+        mXLabelGravity = typedArray.getInt(R.styleable.WheelChartLayout_xLabelGravity, mXLabelGravity);
+        mXLabelInterval = typedArray.getDimension(R.styleable.WheelChartLayout_xLabelInterval, mXLabelInterval);
+        mXLabelTextNormalSize = typedArray.getDimension(R.styleable.WheelChartLayout_xLabelTextNormalSize, Utils.sp2px(context, mXLabelTextNormalSize));
+        mXLabelTextNormalColor = typedArray.getColor(R.styleable.WheelChartLayout_xLabelTextNormalColor, mXLabelTextNormalColor);
+        mXLabelTextSelectSize = typedArray.getDimension(R.styleable.WheelChartLayout_xLabelTextNormalSize, Utils.sp2px(context, mXLabelTextSelectSize));
+        mXLabelTextSelectColor = typedArray.getColor(R.styleable.WheelChartLayout_xLabelTextSelectColor, mXLabelTextSelectColor);
+        mXLabelTextLineInterval = typedArray.getDimension(R.styleable.WheelChartLayout_xLabelTextLineInterval, Utils.dp2px(context, mXLabelTextLineInterval));
+        mXLabelLineWidth = typedArray.getDimension(R.styleable.WheelChartLayout_xLabelLineWidth, Utils.dp2px(context, mXLabelLineWidth));
+        mXLabelLineColor = typedArray.getColor(R.styleable.WheelChartLayout_xLabelLineColor, mXLabelLineColor);
+        mXLabelLineLength = typedArray.getDimension(R.styleable.WheelChartLayout_xLabelLineLength, mXLabelLineLength);
+        mXLabelLineDashLength = typedArray.getDimension(R.styleable.WheelChartLayout_xLabelLineDashLength, mXLabelLineDashLength);
+        mLinkLineWidth = typedArray.getDimension(R.styleable.WheelChartLayout_linkLineWidth, Utils.dp2px(context, mLinkLineWidth));
+        mLinkLineColor = typedArray.getColor(R.styleable.WheelChartLayout_linkLineColor, mLinkLineColor);
+        mLinkLineType = typedArray.getInt(R.styleable.WheelChartLayout_linkLineType, mLinkLineType);
+        mNormalValueTextSize = typedArray.getDimension(R.styleable.WheelChartLayout_normalValueTextSize, Utils.sp2px(context, mNormalValueTextSize));
+        mNormalValueTextColor = typedArray.getColor(R.styleable.WheelChartLayout_normalValueTextColor, mNormalValueTextColor);
+        mSelectValueTextSize = typedArray.getDimension(R.styleable.WheelChartLayout_selectValueTextSize, Utils.sp2px(context, mSelectValueTextSize));
+        mSelectValueTextColor = typedArray.getColor(R.styleable.WheelChartLayout_selectValueTextColor, mSelectValueTextColor);
+        mValuePointColor = typedArray.getColor(R.styleable.WheelChartLayout_valuePointColor, mValuePointColor);
+        mPaddingLeftAndRight = typedArray.getDimension(R.styleable.WheelChartLayout_paddingLeftAndRight, Utils.dp2px(context, mPaddingLeftAndRight));
+        mPaddingTopAndBottom = typedArray.getDimension(R.styleable.WheelChartLayout_paddingTopAndBottom, Utils.dp2px(context, mPaddingTopAndBottom));
         typedArray.recycle();
     }
 
     private void initChartView(Context context) {
         mContext = context;
-        mChartBillView = new ChartBillView(context, this);
+        mWheelChartView = new HorizontalWheelChartView(context, this);
         LayoutParams layoutParams = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        mChartBillView.setLayoutParams(layoutParams);
-        addView(mChartBillView);
+        mWheelChartView.setLayoutParams(layoutParams);
+        addView(mWheelChartView);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (changed) {
-            mChartBillView.layout((int) mPaddingLeftAndRight, (int) (t + mPaddingTopAndBottom), r - l - (int) mPaddingLeftAndRight, (int) (b - mPaddingTopAndBottom));
+            mWheelChartView.layout((int) mPaddingLeftAndRight, (int) (t + mPaddingTopAndBottom), r - l - (int) mPaddingLeftAndRight, (int) (b - mPaddingTopAndBottom));
         }
     }
 
@@ -173,8 +173,8 @@ public class ChartBillLayout extends ViewGroup {
 
     public void setData(List<Entry> data) {
         mData = data;
-        mChartBillView.init(mContext);
-        mChartBillView.refreshSize();
+        mWheelChartView.init(mContext);
+        mWheelChartView.refreshSize();
     }
 
     public List<Entry> getData() {

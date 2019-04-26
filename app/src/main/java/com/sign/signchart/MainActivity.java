@@ -2,12 +2,9 @@ package com.sign.signchart;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,7 +12,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ChartBillLayout chartBillLayout = findViewById(R.id.cbl_bill);
+        WheelChartLayout chartBillLayout = findViewById(R.id.cbl_bill);
         List<Entry> list = new ArrayList<>();
         list.add(new Entry("Jan", 200));
         list.add(new Entry("Feb", 200));
@@ -30,13 +27,13 @@ public class MainActivity extends AppCompatActivity {
         list.add(new Entry("Nov", 3000));
         list.add(new Entry("Dec", 200));
         float xLabelInterval = Utils.getScreenWidth(this) / 4f;
-        double minValue = list.get(0).getMoney(), maxValue = list.get(0).getMoney();
+        double minValue = list.get(0).getYValue(), maxValue = list.get(0).getYValue();
         for (Entry entry : list) {
-            if (entry.getMoney() < minValue) {
-                minValue = entry.getMoney();
+            if (entry.getYValue() < minValue) {
+                minValue = entry.getYValue();
             }
-            if (entry.getMoney() > maxValue) {
-                maxValue = entry.getMoney();
+            if (entry.getYValue() > maxValue) {
+                maxValue = entry.getYValue();
             }
         }
         chartBillLayout.setYMinValue(minValue);
