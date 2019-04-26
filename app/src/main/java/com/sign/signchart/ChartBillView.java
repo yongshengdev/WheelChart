@@ -8,11 +8,13 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.OverScroller;
 
 import java.util.ArrayList;
@@ -25,9 +27,10 @@ import java.util.List;
  * @author admin
  */
 public class ChartBillView extends View {
+    private static final String TAG = "ChartBillView";
     private final static float BEZIER_RADIAN = 0.16f;//贝塞尔连接线弧度 值越小越尖锐
     private final static float BLACK_X_LABEL_LINE = 20;//px轴线两端的空白
-    private final static float BLACK_VALUE_TEXT = 12;//px坐标点和文字之间的间距
+    private final static float BLANK_VALUE_TEXT = 12;//px坐标点和文字之间的间距
     private final static int INVALID_ID = -1;//非法触控id
     //惯性回滚最小偏移值，小于这个值就应该直接滑动到目的点
     private static final int MIN_SCROLLER_DP = 1;
@@ -59,7 +62,7 @@ public class ChartBillView extends View {
     private float mLastX = 0;
     //一半宽度
     private int mHalfWidth = 0;
-    //图标的总长度、最小可滑动值、最大可滑动值
+    //图表的总长度、最小可滑动值、最大可滑动值
     private int mLength, mMinPosition = 0, mMaxPosition = 0;
     //速度获取
     private VelocityTracker mVelocityTracker;
@@ -81,6 +84,7 @@ public class ChartBillView extends View {
         mXLabelLinePath = new Path();
         mPointPath = new Path();
         mPointList = new ArrayList<>();
+        mSelectIndex = mParent.getSelectIndex();
         mDrawOffset = Utils.dp2px(context, mParent.getXLabelInterval());
         mOverScroller = new OverScroller(mContext);
         mVelocityTracker = VelocityTracker.obtain();
@@ -90,6 +94,14 @@ public class ChartBillView extends View {
                 .getScaledMinimumFlingVelocity();
         initPaint();
         checkAPILevel();
+        //第一次进入，滚动到指定位置
+        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                scrollBackToExactPosition();
+            }
+        });
     }
 
     //处理滑动 计算现在的event坐标和上一个触摸事件的坐标来计算偏移量 决定scrollBy的多少
@@ -251,14 +263,14 @@ public class ChartBillView extends View {
                 float locationX = i * mParent.getXLabelInterval();
                 if (mParent.getXLabelGravity() == ChartBillLayout.X_TOP) {
                     //上方及下方空白间距+label文字高度+label文字和轴线的间距+选中值文字高度+坐标点和文字间距(*2 多了一份是坐标点的半径)
-                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
+                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLANK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
                     //TODO onDraw方法中不能循环创建对象
-                    mPointList.add(new PointF(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT)));
+                    mPointList.add(new PointF(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT)));
                 } else {
-                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
+                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLANK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
-                    mPointList.add(new PointF(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval())));
+                    mPointList.add(new PointF(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval())));
                 }
             }
         }
@@ -281,23 +293,23 @@ public class ChartBillView extends View {
                     mXLabelLinePath.moveTo(locationX, mXLabelTextNormalHeight + mParent.getXLabelTextLineInterval());
                     mXLabelLinePath.lineTo(locationX, height);
                     canvas.drawPath(mXLabelLinePath, mXLabelLinePaint);
-                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
+                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLANK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
                     //是否是中心值
                     if (mSelectIndex == i) {
                         mXValuePointColorPaint.setStrokeWidth(8);
-                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 4, mXValuePointColorPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT), 4, mXValuePointColorPaint);
                         mXValuePointWhitePaint.setStrokeWidth(4);
-                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 8, mXValuePointWhitePaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT), 8, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
-                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 12, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mSelectValueMetrics.bottom - BLACK_VALUE_TEXT * 2), mSelectValueTextPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT), 12, mXValuePointColorPaint);
+                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mSelectValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mSelectValueTextPaint);
                     } else {
                         mXValuePointWhitePaint.setStrokeWidth(8);
-                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 4, mXValuePointWhitePaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT), 4, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
-                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLACK_VALUE_TEXT), 8, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mNormalValueMetrics.bottom - BLACK_VALUE_TEXT * 2), mNormalValueTextPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT), 8, mXValuePointColorPaint);
+                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mNormalValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mNormalValueTextPaint);
                     }
                 } else {
                     //x轴label文字在下面
@@ -314,23 +326,23 @@ public class ChartBillView extends View {
                     mXLabelLinePath.moveTo(locationX, 0);
                     mXLabelLinePath.lineTo(locationX, getHeight() - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval());
                     canvas.drawPath(mXLabelLinePath, mXLabelLinePaint);
-                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLACK_VALUE_TEXT * 2) /
+                    float distance = (float) ((height - BLACK_X_LABEL_LINE - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mValueSelectHeight - BLANK_VALUE_TEXT * 2) /
                             (mParent.getYMaxValue() - mParent.getYMinValue()) * (mParent.getData().get(i).getMoney() - mParent.getYMinValue()));
                     //是否是中心值
                     if (mSelectIndex == i) {
                         mXValuePointColorPaint.setStrokeWidth(8);
-                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 4, mXValuePointColorPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLANK_VALUE_TEXT), 4, mXValuePointColorPaint);
                         mXValuePointWhitePaint.setStrokeWidth(4);
-                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 8, mXValuePointWhitePaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLANK_VALUE_TEXT), 8, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
-                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 12, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mSelectValueMetrics.bottom - BLACK_VALUE_TEXT * 2), mSelectValueTextPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLANK_VALUE_TEXT), 12, mXValuePointColorPaint);
+                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mSelectValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mSelectValueTextPaint);
                     } else {
                         mXValuePointWhitePaint.setStrokeWidth(8);
-                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 4, mXValuePointWhitePaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLANK_VALUE_TEXT), 4, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
-                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLACK_VALUE_TEXT), 8, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mNormalValueMetrics.bottom - BLACK_VALUE_TEXT * 2), mNormalValueTextPaint);
+                        canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLANK_VALUE_TEXT), 8, mXValuePointColorPaint);
+                        canvas.drawText("R$" + mParent.getData().get(i).getMoney(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mNormalValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mNormalValueTextPaint);
                     }
                 }
             }

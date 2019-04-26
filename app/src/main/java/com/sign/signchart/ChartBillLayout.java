@@ -93,14 +93,16 @@ public class ChartBillLayout extends ViewGroup {
     //坐标点的颜色
     @ColorInt
     private int mValuePointColor = getResources().getColor(R.color.blue);
-    //Y轴的最大值
-    private double mYMaxValue = 0;
-    //Y轴的最小值
-    private double mYMinValue = 0;
     //左端和右端的padding值
     private float mPaddingLeftAndRight = 0;
     //顶端和底端的padding值
     private float mPaddingTopAndBottom = 5;
+    //Y轴的最大值
+    private double mYMaxValue = 0;
+    //Y轴的最小值
+    private double mYMinValue = 0;
+    //默认选中的下标
+    private int mSelectIndex = 0;
     //数据源
     private List<Entry> mData = new ArrayList<>();
 
@@ -178,7 +180,7 @@ public class ChartBillLayout extends ViewGroup {
         return super.onInterceptTouchEvent(ev);
     }
 
-    public void setInterceptTouchEvent(boolean interceptTouchEvent){
+    public void setInterceptTouchEvent(boolean interceptTouchEvent) {
         this.mInterceptTouchEvent = interceptTouchEvent;
     }
 
@@ -385,4 +387,13 @@ public class ChartBillLayout extends ViewGroup {
     public void setValuePointColor(int mValuePointColor) {
         this.mValuePointColor = mValuePointColor;
     }
+
+    public int getSelectIndex() {
+        return mSelectIndex;
+    }
+
+    public void setSelectIndex(int mSelectIndex) {
+        this.mSelectIndex = mSelectIndex;
+    }
+
 }
