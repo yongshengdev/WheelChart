@@ -35,7 +35,7 @@ public class ChartBillView extends View {
     //惯性回滚最小偏移值，小于这个值就应该直接滑动到目的点
     private static final int MIN_SCROLLER_DP = 1;
     private float IGNORE_MOVE_OFFSET = 0.0001f;//可忽略的偏移量
-    private boolean mDownAndUp = false;//若down事件后紧接up事件 则判断为点击事件 跳转到指定坐标
+    private boolean mDownAndUp = false;//TODO 点击事件的判定规则还需优化 若down事件后紧接up事件 则判断为点击事件 跳转到指定坐标
     private int mActivePointerId = INVALID_ID;//记录首个触控点的id 避免多点触控引起的滚动
     private ChartBillLayout mParent;
     private Context mContext;
