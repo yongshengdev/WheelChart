@@ -162,11 +162,11 @@ public class HorizontalWheelChartView extends View {
                     } else {
                         scrollBackToExactPosition();
                     }
-                    //VelocityTracker回收
-                    if (mVelocityTracker != null) {
-                        mVelocityTracker.recycle();
-                        mVelocityTracker = null;
-                    }
+                }
+                //VelocityTracker回收
+                if (mVelocityTracker != null) {
+                    mVelocityTracker.recycle();
+                    mVelocityTracker = null;
                 }
                 mActivePointerId = INVALID_ID;
                 mLastX = 0;
