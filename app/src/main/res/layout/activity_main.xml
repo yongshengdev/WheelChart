@@ -15,4 +15,10 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="嵌套滚动"
+        android:onClick="nestScroll"
+        app:layout_constraintTop_toBottomOf="@id/cbl_bill" />
 </android.support.constraint.ConstraintLayout>

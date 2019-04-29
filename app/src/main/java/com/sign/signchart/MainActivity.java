@@ -1,7 +1,11 @@
 package com.sign.signchart;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+
+import com.sign.signchart.nestscroll.NestScrollActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -162,5 +166,9 @@ public class MainActivity extends AppCompatActivity {
         chartBillLayout.setInterceptTouchEvent(false);
         chartBillLayout.setSelectIndex(0);
         chartBillLayout.setData(list);
+    }
+
+    public void nestScroll(View view) {
+        startActivity(new Intent(this, NestScrollActivity.class));
     }
 }

@@ -63,6 +63,8 @@ public class HorizontalWheelChartView extends View {
     private Path mPointPath;
     //上个touch事件的x坐标
     private float mLastX = 0;
+    //上个touch事件的y坐标
+    private float mLastY = 0;
     //一半宽度
     private int mHalfWidth = 0;
     //图表的总长度、最小可滑动值、最大可滑动值
@@ -125,18 +127,30 @@ public class HorizontalWheelChartView extends View {
                     mOverScroller.abortAnimation();
                 }
                 mLastX = event.getX();
-                parent.requestDisallowInterceptTouchEvent(true);//按下时开始让父控件不要处理任何touch事件
+                mLastY = event.getY();
+                parent.requestDisallowInterceptTouchEvent(false);//按下时开始让父控件不要处理任何touch事件
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mActivePointerId == INVALID_ID || event.findPointerIndex(mActivePointerId) == INVALID_ID) {
                     break;
                 }
-                //计算首个触控点移动后的坐标
+                //计算首个触控点x方向移动距离
                 float moveX = mLastX - event.getX(mActivePointerId);
-                if (Math.abs(moveX) > IGNORE_MOVE_OFFSET) {
-                    mDownAndUp = false;
-                    mLastX = event.getX(mActivePointerId);
-                    scrollBy((int) moveX, 0);
+                //计算首个触控点y方向移动距离
+                float moveY = mLastY - event.getY(mActivePointerId);
+                //判断x方向移动距离大于等于y方向距离 则判断为x轴滚动即滑动图表 反之判断为y轴滚动将事件交由父布局处理
+                if (Math.abs(moveX) >= Math.abs(moveY)) {
+                    if (Math.abs(moveX) > IGNORE_MOVE_OFFSET) {
+                        parent.requestDisallowInterceptTouchEvent(true);
+                        mDownAndUp = false;
+                        mLastX = event.getX(mActivePointerId);
+                        scrollBy((int) moveX, 0);
+                    }
+                } else {
+                    if (Math.abs(moveY) > IGNORE_MOVE_OFFSET) {
+                        parent.requestDisallowInterceptTouchEvent(false);
+                        mLastY = event.getY(mActivePointerId);
+                    }
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -170,12 +184,14 @@ public class HorizontalWheelChartView extends View {
                 }
                 mActivePointerId = INVALID_ID;
                 mLastX = 0;
+                mLastY = 0;
                 parent.requestDisallowInterceptTouchEvent(false);//up或者cancel的时候恢复
                 break;
             case MotionEvent.ACTION_CANCEL:
                 mDownAndUp = false;
                 mActivePointerId = INVALID_ID;
                 mLastX = 0;
+                mLastY = 0;
                 if (!mOverScroller.isFinished()) {
                     mOverScroller.abortAnimation();
                 }
