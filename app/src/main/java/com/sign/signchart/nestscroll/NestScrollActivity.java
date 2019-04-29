@@ -53,8 +53,6 @@ public class NestScrollActivity extends AppCompatActivity {
         chartBillLayout.setInterceptTouchEvent(false);
         chartBillLayout.setSelectIndex(0);
         chartBillLayout.setData(list);
-//        final SpringView springView1 = findViewById(R.id.spring_view1);
-
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
@@ -70,9 +68,6 @@ public class NestScrollActivity extends AppCompatActivity {
             @Nullable
             @Override
             public CharSequence getPageTitle(int position) {
-                if (position == 0) {
-                    return "ListView Tab";
-                }
                 return "分类" + position;
             }
         });

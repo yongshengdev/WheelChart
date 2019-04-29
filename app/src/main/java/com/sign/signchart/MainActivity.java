@@ -3,6 +3,7 @@ package com.sign.signchart;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.sign.signchart.nestscroll.NestScrollActivity;
@@ -11,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+    private int mSelectIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +169,16 @@ public class MainActivity extends AppCompatActivity {
         chartBillLayout.setInterceptTouchEvent(false);
         chartBillLayout.setSelectIndex(0);
         chartBillLayout.setData(list);
+        chartBillLayout.setScrollBackListener(new HorizontalWheelChartView.ScrollBackListener() {
+            @Override
+            public void onScrollBack(int selectIndex) {
+                Log.d(TAG,"onScrollBack   selectIndex === "+selectIndex);
+                if (mSelectIndex != selectIndex) {
+                    mSelectIndex = selectIndex;
+                    Log.d(TAG,"selectIndex has change, can refresh. selectIndex === "+mSelectIndex);
+                }
+            }
+        });
     }
 
     public void nestScroll(View view) {

@@ -77,6 +77,16 @@ public class HorizontalWheelChartView extends View {
     private OverScroller mOverScroller;
     //当前选中的下标
     private int mSelectIndex = 0;
+    //回滚的监听
+    private ScrollBackListener mScrollBackListener;
+
+    /**
+     * 回滚的监听 回滚发生的条件：1.首次进入的选中 2.up时的回滚或惯性滚动结束的回滚 3.cancel时的回滚
+     * 可以在使用该view页面保存上次的选中下标 回滚结束，下标不一致，刷新下标并做相关的操作
+     */
+    public interface ScrollBackListener{
+        void onScrollBack(int selectIndex);
+    }
 
     public HorizontalWheelChartView(Context context, WheelChartLayout wheelChartLayout) {
         super(context);
@@ -237,6 +247,9 @@ public class HorizontalWheelChartView extends View {
     //触摸事件或惯性滚动结束后 应滚动到中心位置
     private void scrollBackToExactPosition() {
         float rightPosition = mSelectIndex * mParent.getXLabelInterval() - (float) getWidth() / 2;
+        if (mScrollBackListener != null) {
+            mScrollBackListener.onScrollBack(mSelectIndex);
+        }
         if (Math.abs(getScrollX() - rightPosition) > IGNORE_OFFSET) {
             int dx = Math.round(rightPosition - getScrollX());
             if (Math.abs(dx) > MIN_SCROLLER_DP) {
@@ -541,5 +554,9 @@ public class HorizontalWheelChartView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    public void setScrollBackListener(ScrollBackListener scrollBackListener) {
+        this.mScrollBackListener = scrollBackListener;
     }
 }

@@ -367,4 +367,8 @@ public class WheelChartLayout extends ViewGroup {
         this.mSelectIndex = mSelectIndex;
     }
 
+    //设置回调
+    public void setScrollBackListener(HorizontalWheelChartView.ScrollBackListener scrollBackListener) {
+        mWheelChartView.setScrollBackListener(scrollBackListener);
+    }
 }
