@@ -84,7 +84,7 @@ public class HorizontalWheelChartView extends View {
      * 回滚的监听 回滚发生的条件：1.首次进入的选中 2.up时的回滚或惯性滚动结束的回滚 3.cancel时的回滚
      * 可以在使用该view页面保存上次的选中下标 回滚结束，下标不一致，刷新下标并做相关的操作
      */
-    public interface ScrollBackListener{
+    public interface ScrollBackListener {
         void onScrollBack(int selectIndex);
     }
 
@@ -411,79 +411,90 @@ public class HorizontalWheelChartView extends View {
         }
         //保存曲线路径
         mPointPath.reset();
-        float prePreviousPointX = Float.NaN;
-        float prePreviousPointY = Float.NaN;
-        float previousPointX = Float.NaN;
-        float previousPointY = Float.NaN;
-        float currentPointX = Float.NaN;
-        float currentPointY = Float.NaN;
-        float nextPointX;
-        float nextPointY;
-        int lineSize = mPointList.size();
-        for (int valueIndex = 0; valueIndex < lineSize; ++valueIndex) {
-            if (Float.isNaN(currentPointX)) {
-                PointF point = mPointList.get(valueIndex);
-                currentPointX = point.x;
-                currentPointY = point.y;
-            }
-            if (Float.isNaN(previousPointX)) {
-                //是否是第一个点
-                if (valueIndex > 0) {
-                    PointF point = mPointList.get(valueIndex - 1);
-                    previousPointX = point.x;
-                    previousPointY = point.y;
+        //折线绘制
+        if (mParent.getLinkLineType() == WheelChartLayout.STRAIGHT) {
+            for (int i = 0; i < mPointList.size(); i++) {
+                if (i == 0) {
+                    mPointPath.moveTo(mPointList.get(i).x, mPointList.get(i).y);
                 } else {
-                    //是的话就用当前点表示上一个点
-                    previousPointX = currentPointX;
-                    previousPointY = currentPointY;
+                    mPointPath.lineTo(mPointList.get(i).x, mPointList.get(i).y);
                 }
             }
-            if (Float.isNaN(prePreviousPointX)) {
-                //是否是前两个点
-                if (valueIndex > 1) {
-                    PointF point = mPointList.get(valueIndex - 2);
-                    prePreviousPointX = point.x;
-                    prePreviousPointY = point.y;
-                } else {
-                    //是的话就用当前点表示上上个点
-                    prePreviousPointX = previousPointX;
-                    prePreviousPointY = previousPointY;
+        } else if (mParent.getLinkLineType() == WheelChartLayout.BEZIER) {
+            float prePreviousPointX = Float.NaN;
+            float prePreviousPointY = Float.NaN;
+            float previousPointX = Float.NaN;
+            float previousPointY = Float.NaN;
+            float currentPointX = Float.NaN;
+            float currentPointY = Float.NaN;
+            float nextPointX;
+            float nextPointY;
+            int lineSize = mPointList.size();
+            for (int valueIndex = 0; valueIndex < lineSize; ++valueIndex) {
+                if (Float.isNaN(currentPointX)) {
+                    PointF point = mPointList.get(valueIndex);
+                    currentPointX = point.x;
+                    currentPointY = point.y;
                 }
+                if (Float.isNaN(previousPointX)) {
+                    //是否是第一个点
+                    if (valueIndex > 0) {
+                        PointF point = mPointList.get(valueIndex - 1);
+                        previousPointX = point.x;
+                        previousPointY = point.y;
+                    } else {
+                        //是的话就用当前点表示上一个点
+                        previousPointX = currentPointX;
+                        previousPointY = currentPointY;
+                    }
+                }
+                if (Float.isNaN(prePreviousPointX)) {
+                    //是否是前两个点
+                    if (valueIndex > 1) {
+                        PointF point = mPointList.get(valueIndex - 2);
+                        prePreviousPointX = point.x;
+                        prePreviousPointY = point.y;
+                    } else {
+                        //是的话就用当前点表示上上个点
+                        prePreviousPointX = previousPointX;
+                        prePreviousPointY = previousPointY;
+                    }
+                }
+                // 判断是不是最后一个点了
+                if (valueIndex < lineSize - 1) {
+                    PointF point = mPointList.get(valueIndex + 1);
+                    nextPointX = point.x;
+                    nextPointY = point.y;
+                } else {
+                    //是的话就用当前点表示下一个点
+                    nextPointX = currentPointX;
+                    nextPointY = currentPointY;
+                }
+                if (valueIndex == 0) {
+                    // 将Path移动到开始点
+                    mPointPath.moveTo(currentPointX, currentPointY);
+                } else {
+                    // 求出控制点坐标
+                    float firstDiffX = (currentPointX - prePreviousPointX);
+                    float firstDiffY = (currentPointY - prePreviousPointY);
+                    float secondDiffX = (nextPointX - previousPointX);
+                    float secondDiffY = (nextPointY - previousPointY);
+                    float firstControlPointX = previousPointX + (BEZIER_RADIAN * firstDiffX);
+                    float firstControlPointY = previousPointY + (BEZIER_RADIAN * firstDiffY);
+                    float secondControlPointX = currentPointX - (BEZIER_RADIAN * secondDiffX);
+                    float secondControlPointY = currentPointY - (BEZIER_RADIAN * secondDiffY);
+                    //画出曲线
+                    mPointPath.cubicTo(firstControlPointX, firstControlPointY, secondControlPointX, secondControlPointY,
+                            currentPointX, currentPointY);
+                }
+                // 更新值,
+                prePreviousPointX = previousPointX;
+                prePreviousPointY = previousPointY;
+                previousPointX = currentPointX;
+                previousPointY = currentPointY;
+                currentPointX = nextPointX;
+                currentPointY = nextPointY;
             }
-            // 判断是不是最后一个点了
-            if (valueIndex < lineSize - 1) {
-                PointF point = mPointList.get(valueIndex + 1);
-                nextPointX = point.x;
-                nextPointY = point.y;
-            } else {
-                //是的话就用当前点表示下一个点
-                nextPointX = currentPointX;
-                nextPointY = currentPointY;
-            }
-            if (valueIndex == 0) {
-                // 将Path移动到开始点
-                mPointPath.moveTo(currentPointX, currentPointY);
-            } else {
-                // 求出控制点坐标
-                float firstDiffX = (currentPointX - prePreviousPointX);
-                float firstDiffY = (currentPointY - prePreviousPointY);
-                float secondDiffX = (nextPointX - previousPointX);
-                float secondDiffY = (nextPointY - previousPointY);
-                float firstControlPointX = previousPointX + (BEZIER_RADIAN * firstDiffX);
-                float firstControlPointY = previousPointY + (BEZIER_RADIAN * firstDiffY);
-                float secondControlPointX = currentPointX - (BEZIER_RADIAN * secondDiffX);
-                float secondControlPointY = currentPointY - (BEZIER_RADIAN * secondDiffY);
-                //画出曲线
-                mPointPath.cubicTo(firstControlPointX, firstControlPointY, secondControlPointX, secondControlPointY,
-                        currentPointX, currentPointY);
-            }
-            // 更新值,
-            prePreviousPointX = previousPointX;
-            prePreviousPointY = previousPointY;
-            previousPointX = currentPointX;
-            previousPointY = currentPointY;
-            currentPointX = nextPointX;
-            currentPointY = nextPointY;
         }
         canvas.drawPath(mPointPath, mLinkLinePaint);
     }
