@@ -7,7 +7,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.FrameLayout;
+import android.view.ViewGroup;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author admin
  */
-public class WheelChartLayout extends FrameLayout {
+public class WheelChartLayout extends ViewGroup {
     private Context mContext;
     private HorizontalWheelChartView mWheelChartView;
 
@@ -141,7 +141,7 @@ public class WheelChartLayout extends FrameLayout {
     private void initChartView(Context context) {
         mContext = context;
         mWheelChartView = new HorizontalWheelChartView(context, this);
-        LayoutParams layoutParams = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        LayoutParams layoutParams = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         mWheelChartView.setLayoutParams(layoutParams);
         addView(mWheelChartView);
     }
@@ -152,6 +152,21 @@ public class WheelChartLayout extends FrameLayout {
             return true;
         }
         return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        measureChild(mWheelChartView, widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        if (changed) {
+            int parentLeft = getPaddingLeft();
+            int parentTop = getPaddingTop();
+            mWheelChartView.layout(parentLeft, parentTop, mWheelChartView.getMeasuredWidth() + parentLeft, parentTop + mWheelChartView.getMeasuredHeight());
+        }
     }
 
     public void setInterceptTouchEvent(boolean interceptTouchEvent) {

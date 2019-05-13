@@ -12,13 +12,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:text="有10dp padding"
+        android:text="有10dp padding margin"
         android:textSize="12sp" />
 
     <com.sign.signchart.WheelChartLayout
         android:id="@+id/wcl_bill_straight"
         android:layout_width="match_parent"
         android:layout_height="150dp"
+        android:layout_margin="10dp"
         android:background="#ffffff"
         android:padding="10dp"
         app:linkLineType="straight"

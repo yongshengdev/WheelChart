@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         List<Entry> list = new ArrayList<>();
         initDemoList(list);
         //折线图
-        float xLabelInterval1 = (Utils.getScreenWidth(this) - Utils.dp2px(this, 20)) / 4f;
+        float xLabelInterval1 = (Utils.getScreenWidth(this) - Utils.dp2px(this, 40)) / 4f;
         double minValue = list.get(0).getYValue(), maxValue = list.get(0).getYValue();
         for (Entry entry : list) {
             if (entry.getYValue() < minValue) {
