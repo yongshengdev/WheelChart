@@ -7,7 +7,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author admin
  */
-public class WheelChartLayout extends ViewGroup {
+public class WheelChartLayout extends FrameLayout {
     private Context mContext;
     private HorizontalWheelChartView mWheelChartView;
 
@@ -88,10 +88,6 @@ public class WheelChartLayout extends ViewGroup {
     //坐标点的颜色
     @ColorInt
     private int mValuePointColor = getResources().getColor(R.color.blue);
-    //左端和右端的padding值
-    private float mPaddingLeftAndRight = 0;
-    //顶端和底端的padding值
-    private float mPaddingTopAndBottom = 5;
     //Y轴的最大值
     private double mYMaxValue = 0;
     //Y轴的最小值
@@ -139,24 +135,15 @@ public class WheelChartLayout extends ViewGroup {
         mSelectValueTextSize = typedArray.getDimension(R.styleable.WheelChartLayout_selectValueTextSize, Utils.sp2px(context, mSelectValueTextSize));
         mSelectValueTextColor = typedArray.getColor(R.styleable.WheelChartLayout_selectValueTextColor, mSelectValueTextColor);
         mValuePointColor = typedArray.getColor(R.styleable.WheelChartLayout_valuePointColor, mValuePointColor);
-        mPaddingLeftAndRight = typedArray.getDimension(R.styleable.WheelChartLayout_paddingLeftAndRight, Utils.dp2px(context, mPaddingLeftAndRight));
-        mPaddingTopAndBottom = typedArray.getDimension(R.styleable.WheelChartLayout_paddingTopAndBottom, Utils.dp2px(context, mPaddingTopAndBottom));
         typedArray.recycle();
     }
 
     private void initChartView(Context context) {
         mContext = context;
         mWheelChartView = new HorizontalWheelChartView(context, this);
-        LayoutParams layoutParams = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        LayoutParams layoutParams = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         mWheelChartView.setLayoutParams(layoutParams);
         addView(mWheelChartView);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (changed) {
-            mWheelChartView.layout((int) mPaddingLeftAndRight, (int) (t + mPaddingTopAndBottom), r - l - (int) mPaddingLeftAndRight, (int) (b - mPaddingTopAndBottom));
-        }
     }
 
     @Override
@@ -179,11 +166,6 @@ public class WheelChartLayout extends ViewGroup {
 
     public List<Entry> getData() {
         return mData;
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override

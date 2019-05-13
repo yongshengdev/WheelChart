@@ -1,24 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F1F1F1"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="有10dp padding"
+        android:textSize="12sp" />
+
     <com.sign.signchart.WheelChartLayout
-        android:id="@+id/cbl_bill"
-        android:layout_width="0dp"
+        android:id="@+id/wcl_bill_straight"
+        android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:background="#6682B4B6"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:background="#ffffff"
+        android:padding="10dp"
+        app:linkLineType="straight"
+        app:xLabelGravity="top"
+        app:xLabelLineColor="@color/blue" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="无padding"
+        android:textSize="12sp" />
+
+    <com.sign.signchart.WheelChartLayout
+        android:id="@+id/wcl_bill_bezier"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#ffffff"
+        app:linkLineType="bezier"
+        app:xLabelGravity="bottom" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="嵌套滚动"
+        android:layout_marginTop="10dp"
         android:onClick="nestScroll"
-        app:layout_constraintTop_toBottomOf="@id/cbl_bill" />
-</android.support.constraint.ConstraintLayout>
+        android:text="嵌套滚动" />
+</LinearLayout>

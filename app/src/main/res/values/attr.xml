@@ -26,8 +26,5 @@
         <attr name="selectValueTextSize" format="dimension"/>
         <attr name="selectValueTextColor" format="color"/>
         <attr name="valuePointColor" format="color"/>
-        <attr name="paddingLeftAndRight" format="dimension"/>
-        <attr name="paddingTopAndBottom" format="dimension"/>
-
     </declare-styleable>
 </resources>
