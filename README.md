@@ -3,6 +3,16 @@
 
 `compile 'com.sign.wheelchart:wheelchart:1.0.0'`
 
+```
+<com.sign.wheelchart.WheelChartLayout
+    android:id="@+id/wcl_bill_straight"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    app:linkLineType="straight"
+    app:xLabelGravity="top"
+    app:xLabelLineColor="@color/blue" />
+```
+
 **Features** 
 - 绘制横向图表  
 - 可拖动并处理惯性滚动事件  
