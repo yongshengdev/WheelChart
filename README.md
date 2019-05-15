@@ -5,7 +5,7 @@
 
 ```
 <com.sign.wheelchart.WheelChartLayout
-    android:id="@+id/wcl_bill_straight"
+    android:id="@+id/wcl_straight"
     android:layout_width="match_parent"
     android:layout_height="150dp"
     app:linkLineType="straight"
