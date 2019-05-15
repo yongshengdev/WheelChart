@@ -21,3 +21,7 @@ https://blog.csdn.net/SS_S1gn/article/details/89599605
 **Contributing**
 
 Yes:) If you found a bug, have an idea how to improve library or have a question, please create new issue or comment existing one. If you would like to contribute code fork the repository and send a pull request.
+
+**Email**
+
+3328019207@qq.com
