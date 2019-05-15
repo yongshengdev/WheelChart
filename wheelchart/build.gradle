@@ -1,0 +1,117 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+
+android {
+    compileSdkVersion 28
+
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+version = "1.0.0"//version
+group = "com.sign.wheelchart"//groupId
+
+def siteUrl = 'https://github.com/SilenceBurst/WheelChart'   //项目的主页
+def gitUrl = 'https://github.com/SilenceBurst/WheelChart.git'   //github仓库的地址
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    pkg {
+        repo = 'WheelChart'//创建的仓库名字
+        name = 'com.sign.wheelchart'//packageName
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ['Apache-2.0']//创建仓库时选择的license type
+        userOrg = 'silenceburst' //自己bintray创建的organization名称
+        publish = true // 是否是公开项目。
+
+        version {
+            name = '1.0.0'//版本号
+            desc = 'Android WheelChart'//版本描述
+            released = new Date()
+            vcsTag = 'v1.0'
+            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin']
+        }
+    }
+    configurations = ['archives']
+}
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                //项目描述
+                description 'Android WheelChart'
+                url siteUrl
+                // 填写开源协议
+                licenses {
+                    license {
+                        name 'Apache-2.0'
+                        url ' http://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'SilenceBurst'
+                        //填写邮件地址
+                        email 'yongshengdeveloper@gmail.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+//打包源码
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+//打包源码doc文档
+task javadoc(type: Javadoc) {
+    options.encoding = "UTF-8"
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}

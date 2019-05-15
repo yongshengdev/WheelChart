@@ -1,4 +1,4 @@
-package com.sign.signchart;
+package com.sign.wheelchart;
 
 import android.content.Context;
 import android.graphics.Canvas;

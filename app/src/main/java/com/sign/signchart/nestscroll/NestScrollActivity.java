@@ -8,10 +8,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import com.sign.signchart.Entry;
 import com.sign.signchart.R;
-import com.sign.signchart.Utils;
-import com.sign.signchart.WheelChartLayout;
+import com.sign.wheelchart.Entry;
+import com.sign.wheelchart.Utils;
+import com.sign.wheelchart.WheelChartLayout;
 
 import java.util.ArrayList;
 import java.util.List;

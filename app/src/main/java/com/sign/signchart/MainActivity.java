@@ -7,6 +7,10 @@ import android.util.Log;
 import android.view.View;
 
 import com.sign.signchart.nestscroll.NestScrollActivity;
+import com.sign.wheelchart.Entry;
+import com.sign.wheelchart.HorizontalWheelChartView;
+import com.sign.wheelchart.Utils;
+import com.sign.wheelchart.WheelChartLayout;
 
 import java.util.ArrayList;
 import java.util.List;

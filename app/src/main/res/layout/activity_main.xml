@@ -15,7 +15,7 @@
         android:text="有10dp padding margin"
         android:textSize="12sp" />
 
-    <com.sign.signchart.WheelChartLayout
+    <com.sign.wheelchart.WheelChartLayout
         android:id="@+id/wcl_bill_straight"
         android:layout_width="match_parent"
         android:layout_height="150dp"
@@ -33,7 +33,7 @@
         android:text="无padding"
         android:textSize="12sp" />
 
-    <com.sign.signchart.WheelChartLayout
+    <com.sign.wheelchart.WheelChartLayout
         android:id="@+id/wcl_bill_bezier"
         android:layout_width="match_parent"
         android:layout_height="200dp"
