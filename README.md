@@ -3,6 +3,16 @@
 
 `compile 'com.sign.wheelchart:wheelchart:1.0.0'`
 
+```
+<com.sign.wheelchart.WheelChartLayout
+    android:id="@+id/wcl_straight"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    app:linkLineType="straight"
+    app:xLabelGravity="top"
+    app:xLabelLineColor="@color/blue" />
+```
+
 **Features** 
 - 绘制横向图表  
 - 可拖动并处理惯性滚动事件  
@@ -21,3 +31,12 @@ https://blog.csdn.net/SS_S1gn/article/details/89599605
 **Contributing**
 
 Yes:) If you found a bug, have an idea how to improve library or have a question, please create new issue or comment existing one. If you would like to contribute code fork the repository and send a pull request.
+
+**Email**
+
+3328019207@qq.com
+
+**Special Thanks**  
+
+[hencoder](https://hencoder.com/)  
+https://github.com/totond/BooheeRuler
