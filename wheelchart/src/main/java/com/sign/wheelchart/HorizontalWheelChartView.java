@@ -236,7 +236,7 @@ public class HorizontalWheelChartView extends View {
         if (mOverScroller.computeScrollOffset()) {
             scrollTo(mOverScroller.getCurrX(), mOverScroller.getCurrY());
             //这是最后OverScroller的最后一次滑动，如果这次滑动完了mCurrentScale不是整数，则把图表移动到最近的整数位置
-            if (!mOverScroller.computeScrollOffset()) {
+            if (mOverScroller.isFinished()) {
                 //fling完毕，检测是否需要回滚
                 scrollBackToExactPosition();
             }
