@@ -159,6 +159,7 @@ public class HorizontalWheelChartView extends View {
                 } else {
                     if (Math.abs(moveY) > IGNORE_MOVE_OFFSET) {
                         parent.requestDisallowInterceptTouchEvent(false);
+                        mDownAndUp = false;
                         mLastY = event.getY(mActivePointerId);
                     }
                 }
