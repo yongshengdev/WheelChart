@@ -42,4 +42,5 @@ Yes:) If you found a bug, have an idea how to improve library or have a question
 https://github.com/totond/BooheeRuler
 
 **bug fix**
+
 1.1.0 修复sumsung s6滚动完毕不能回滚到中心区域的bug
