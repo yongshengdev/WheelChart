@@ -1,6 +1,8 @@
 # WheelChart
 **Usage**
 
+```implementation 'com.sign.wheelchart:wheelchart:1.1.0'```
+
 ```
 <com.sign.wheelchart.WheelChartLayout
     android:id="@+id/wcl_straight"
