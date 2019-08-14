@@ -38,17 +38,6 @@ public class NestScrollActivity extends AppCompatActivity {
         list.add(new Entry("Nov", 3000));
         list.add(new Entry("Dec", 200));
         float xLabelInterval = Utils.getScreenWidth(this) / 4f;
-        double minValue = list.get(0).getYValue(), maxValue = list.get(0).getYValue();
-        for (Entry entry : list) {
-            if (entry.getYValue() < minValue) {
-                minValue = entry.getYValue();
-            }
-            if (entry.getYValue() > maxValue) {
-                maxValue = entry.getYValue();
-            }
-        }
-        chartBillLayout.setYMinValue(minValue);
-        chartBillLayout.setYMaxValue(maxValue);
         chartBillLayout.setXLabelInterval(xLabelInterval);
         chartBillLayout.setInterceptTouchEvent(false);
         chartBillLayout.setSelectIndex(0);

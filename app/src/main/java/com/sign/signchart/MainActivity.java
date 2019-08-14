@@ -29,17 +29,6 @@ public class MainActivity extends AppCompatActivity {
         initDemoList(list);
         //折线图
         float xLabelInterval1 = (Utils.getScreenWidth(this) - Utils.dp2px(this, 40)) / 4f;
-        double minValue = list.get(0).getYValue(), maxValue = list.get(0).getYValue();
-        for (Entry entry : list) {
-            if (entry.getYValue() < minValue) {
-                minValue = entry.getYValue();
-            }
-            if (entry.getYValue() > maxValue) {
-                maxValue = entry.getYValue();
-            }
-        }
-        wclBillStraight.setYMinValue(minValue);
-        wclBillStraight.setYMaxValue(maxValue);
         wclBillStraight.setXLabelInterval(xLabelInterval1);
         wclBillStraight.setInterceptTouchEvent(false);
         wclBillStraight.setSelectIndex(0);
@@ -56,8 +45,6 @@ public class MainActivity extends AppCompatActivity {
         });
         //贝塞尔连接
         float xLabelInterval2 = Utils.getScreenWidth(this) / 4f;
-        wclBillBezier.setYMinValue(minValue);
-        wclBillBezier.setYMaxValue(maxValue);
         wclBillBezier.setXLabelInterval(xLabelInterval2);
         wclBillBezier.setInterceptTouchEvent(false);
         wclBillBezier.setSelectIndex(0);

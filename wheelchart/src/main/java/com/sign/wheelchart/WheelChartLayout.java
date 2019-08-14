@@ -88,6 +88,8 @@ public class WheelChartLayout extends ViewGroup {
     //坐标点的颜色
     @ColorInt
     private int mValuePointColor = getResources().getColor(R.color.blue);
+    //y轴的单位
+    private String mYUnit = "R$ ";
     //Y轴的最大值
     private double mYMaxValue = 0;
     //Y轴的最小值
@@ -175,8 +177,29 @@ public class WheelChartLayout extends ViewGroup {
 
     public void setData(List<Entry> data) {
         mData = data;
-        mWheelChartView.init(mContext);
+        if (data != null && data.size() > 0) {
+            mYMinValue = data.get(0).getYValue();
+            mYMaxValue = data.get(0).getYValue();
+            for (int i = 1; i < data.size(); i++) {
+                if (data.get(i).getYValue() < mYMinValue) {
+                    mYMinValue = data.get(i).getYValue();
+                }
+                if (data.get(i).getYValue() > mYMaxValue) {
+                    mYMaxValue = data.get(i).getYValue();
+                }
+            }
+        }
+        //若数据最大值最小值相等 构造最大、最小值
+        if (mYMaxValue == mYMinValue) {
+            if (mYMinValue == 0) {
+                mYMaxValue = 100;
+            } else {
+                mYMaxValue = mYMaxValue + 100;
+                mYMinValue = mYMinValue - 100;
+            }
+        }
         mWheelChartView.refreshSize();
+        mWheelChartView.init(mContext);
     }
 
     public List<Entry> getData() {
@@ -362,6 +385,14 @@ public class WheelChartLayout extends ViewGroup {
 
     public void setSelectIndex(int mSelectIndex) {
         this.mSelectIndex = mSelectIndex;
+    }
+
+    public String getYUnit() {
+        return mYUnit;
+    }
+
+    public void setYUnit(String yUnit) {
+        this.mYUnit = yUnit;
     }
 
     //设置回调

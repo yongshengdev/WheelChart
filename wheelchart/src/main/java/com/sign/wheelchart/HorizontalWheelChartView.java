@@ -91,6 +91,7 @@ public class HorizontalWheelChartView extends View {
     public HorizontalWheelChartView(Context context, WheelChartLayout wheelChartLayout) {
         super(context);
         mParent = wheelChartLayout;
+        refreshSize();
         init(context);
     }
 
@@ -114,7 +115,7 @@ public class HorizontalWheelChartView extends View {
             @Override
             public void onGlobalLayout() {
                 getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                scrollBackToExactPosition();
+                scrollImmediate();
             }
         });
     }
@@ -245,6 +246,17 @@ public class HorizontalWheelChartView extends View {
         }
     }
 
+    //首次进入或view尺寸变化 直接滚动到指定位置
+    private void scrollImmediate() {
+        float rightPosition = mSelectIndex * mParent.getXLabelInterval() - (float) getWidth() / 2;
+        if (mScrollBackListener != null) {
+            mScrollBackListener.onScrollBack(mSelectIndex);
+        }
+        if (Math.abs(getScrollX() - rightPosition) > IGNORE_OFFSET) {
+            scrollBy(Math.round(rightPosition - getScrollX()), 0);
+        }
+    }
+
     //触摸事件或惯性滚动结束后 应滚动到中心位置
     private void scrollBackToExactPosition() {
         float rightPosition = mSelectIndex * mParent.getXLabelInterval() - (float) getWidth() / 2;
@@ -303,6 +315,7 @@ public class HorizontalWheelChartView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         refreshSize();
+        scrollImmediate();
     }
 
     @Override
@@ -359,13 +372,13 @@ public class HorizontalWheelChartView extends View {
                         canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT), 8, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
                         canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT), 12, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getYValue(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mSelectValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mSelectValueTextPaint);
+                        canvas.drawText(mParent.getYUnit() + mParent.getData().get(i).getYValue(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mSelectValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mSelectValueTextPaint);
                     } else {
                         mXValuePointWhitePaint.setStrokeWidth(8);
                         canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT), 4, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
                         canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - BLANK_VALUE_TEXT), 8, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getYValue(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mNormalValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mNormalValueTextPaint);
+                        canvas.drawText(mParent.getYUnit() + mParent.getData().get(i).getYValue(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mNormalValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mNormalValueTextPaint);
                     }
                 } else {
                     //x轴label文字在下面
@@ -392,13 +405,13 @@ public class HorizontalWheelChartView extends View {
                         canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLANK_VALUE_TEXT), 8, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
                         canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLANK_VALUE_TEXT), 12, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getYValue(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mSelectValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mSelectValueTextPaint);
+                        canvas.drawText(mParent.getYUnit() + mParent.getData().get(i).getYValue(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mSelectValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mSelectValueTextPaint);
                     } else {
                         mXValuePointWhitePaint.setStrokeWidth(8);
                         canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLANK_VALUE_TEXT), 4, mXValuePointWhitePaint);
                         mXValuePointColorPaint.setStrokeWidth(3);
                         canvas.drawCircle(locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - BLANK_VALUE_TEXT), 8, mXValuePointColorPaint);
-                        canvas.drawText("R$" + mParent.getData().get(i).getYValue(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mNormalValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mNormalValueTextPaint);
+                        canvas.drawText(mParent.getYUnit() + mParent.getData().get(i).getYValue(), locationX, (height - distance - BLACK_X_LABEL_LINE / 2 - mXLabelTextNormalHeight - mParent.getXLabelTextLineInterval() - mNormalValueMetrics.bottom - BLANK_VALUE_TEXT * 2), mNormalValueTextPaint);
                     }
                 }
             }
