@@ -35,7 +35,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
-version = "1.1.0"//version
+version = "1.1.1"//version
 group = "com.sign.wheelchart"//groupId
 
 def siteUrl = 'https://github.com/SilenceBurst/WheelChart'   //项目的主页
@@ -56,7 +56,7 @@ bintray {
         publish = true // 是否是公开项目。
 
         version {
-            name = '1.1.0'//版本号
+            name = '1.1.1'//版本号
             desc = 'Android WheelChart'//版本描述
             released = new Date()
             vcsTag = 'v1.0'

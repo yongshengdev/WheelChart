@@ -1,7 +1,7 @@
 # WheelChart
 **Usage**
 
-```implementation 'com.sign.wheelchart:wheelchart:1.1.0'```
+```implementation 'com.sign.wheelchart:wheelchart:1.1.1'```
 
 ```
 <com.sign.wheelchart.WheelChartLayout
@@ -42,5 +42,8 @@ Yes:) If you found a bug, have an idea how to improve library or have a question
 https://github.com/totond/BooheeRuler
 
 **bug fix**
+1.1.1 第一次打开直接跳转到指定位置；
+      将计算最大值、最小值逻辑放在setData中处理 不必特殊计算
+      y轴单位可修改
 
 1.1.0 修复sumsung s6滚动完毕不能回滚到中心区域的bug
