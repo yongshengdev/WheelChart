@@ -41,7 +41,8 @@ Yes:) If you found a bug, have an idea how to improve library or have a question
 [hencoder](https://hencoder.com/)  
 https://github.com/totond/BooheeRuler
 
-**bug fix**
+**bug fix**  
+
 1.1.1 第一次打开直接跳转到指定位置；
       将计算最大值、最小值逻辑放在setData中处理 不必特殊计算
       y轴单位可修改
