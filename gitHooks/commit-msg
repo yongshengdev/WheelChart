@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# 用 `` 可以将命令的输出结果赋值给变量
 # 获取当前提交的 commit msg
 commit_msg=`cat $1`
 
