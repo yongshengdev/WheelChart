@@ -1,0 +1,62 @@
+/**
+ * 用法：
+ * apply from: 'git-hook-copy.gradle'
+ * 博客：
+ * https://yanbober.blog.csdn.net/article/details/108719178
+ */
+
+/**
+ * 紧急开关
+ */
+def forbid = false
+
+project.afterEvaluate {
+    if (forbid) {
+        preBuild.dependsOn 'resetGitHookConfig'
+    } else {
+        preBuild.dependsOn 'prepareGitHookConfig'
+    }
+}
+
+task resetGitHookConfig {
+    doFirst {
+        File file = getGitHookFile('commit-msg')
+        if (file != null) {
+            file.delete()
+        }
+    }
+}
+
+def getGitHookFile(fileName) {
+    def dirPath = getGitHookDir()
+    if (dirPath != null && dirPath.length() > 0) {
+        def file = new File(dirPath, fileName)
+        if (file.exists()) {
+            return file
+        }
+    }
+    return null
+}
+
+task prepareGitHookConfig(type: Copy) {
+    from getConfigFile()
+    into getGitHookDir()
+}
+
+def getConfigFile() {
+    File configFile = new File(project.rootDir, "git-hook/commit-msg")
+    if (configFile.exists()) {
+        return configFile.absolutePath
+    }
+    return null
+}
+
+def getGitHookDir() {
+    File gitHookDir = new File(project.rootDir, ".git/hooks/")
+    if (!gitHookDir.exists()) {
+        println("can't find .git directory in the ${project.rootDir.absolutePath}," +
+                " please ensure it have been tracked by git!")
+        return null
+    }
+    return gitHookDir.absolutePath
+}
