@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply from: 'git-hook-copy.gradle'
+apply from: 'git-hook.gradle'
 
 
 android {

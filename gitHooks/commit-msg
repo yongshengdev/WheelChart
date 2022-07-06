@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# 用 `` 可以将命令的输出结果赋值给变量
+# 获取当前提交的 commit msg
+commit_msg=`cat $1`
+
+msg_re="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: .{2,}"
+
+if [[ ! $commit_msg =~ $msg_re ]]
+then
+  echo "commit消息提交不合法，请使用IDEA约束插件 Git Commit Template 格式化，详情请查看Commit Message格式：https://www.yuque.com/docs/share/9a4bf0a0-902a-4347-9b9f-48e162af691d?# 《代码review流程及工具整理》\n"
+
+	# 异常退出
+	exit 1
+fi

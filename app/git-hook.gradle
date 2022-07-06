@@ -1,6 +1,6 @@
 /**
  * 用法：
- * apply from: 'git-hook-copy.gradle'
+ * apply from: 'git-hook.gradle'
  * 博客：
  * https://yanbober.blog.csdn.net/article/details/108719178
  */
@@ -41,10 +41,11 @@ def getGitHookFile(fileName) {
 task prepareGitHookConfig(type: Copy) {
     from getConfigFile()
     into getGitHookDir()
+    fileMode 0755
 }
 
 def getConfigFile() {
-    File configFile = new File(project.rootDir, "git-hook/commit-msg")
+    File configFile = new File(project.rootDir, "gitHooks/commit-msg")
     if (configFile.exists()) {
         return configFile.absolutePath
     }
